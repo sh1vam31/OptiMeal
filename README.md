@@ -91,11 +91,11 @@ The success of OptiMeal is evaluated using business logic and offline ranking me
 2. **LLM Diet Planner Integration**: Pass the Top 10 shortlist to an LLM to automatically generate a week-long personalized meal plan based on the user's exact macros.
 3. **Multi-Armed Bandit (MAB)**: Implement UCB (Upper Confidence Bound) to occasionally explore and surface hidden gems that users wouldn't normally search for.
 
-## 13. Bonus Challenge: Product Inspiration (Netflix & Zomato)
-**Inspiration**: OptiMeal's UI takes heavy inspiration from Zomato and Swiggy's visual food cards, while its recommendation transparency (the "How It Works" page and Explainability badges) takes direct inspiration from **Netflix's "Marquee" / Tech Blog**.
+## 13. Bonus Challenge: Product Inspiration (Zomato & Swiggy)
+**Inspiration**: OptiMeal's UI and core food delivery context takes heavy inspiration from **Zomato** and **Swiggy**.
 
-- **Similarities**: Like Netflix, OptiMeal uses a multi-stage pipeline (Filter -> Rank -> Diversify). Like Zomato, it utilizes high-quality food photography and clear pricing.
-- **Differences**: Zomato prioritizes sponsored restaurants and generic carousels. OptiMeal strictly prioritizes user constraints. Netflix uses massive collaborative filtering arrays; OptiMeal uses stateless content-based constraint solving.
+- **Similarities**: Like Zomato, OptiMeal utilizes high-quality food photography, clear pricing, and restaurant metadata. It relies on a multi-stage pipeline (Filter -> Rank -> Diversify) common in large-scale food aggregators.
+- **Differences**: Zomato prioritizes sponsored restaurants and generic carousels optimized for maximum scroll time. OptiMeal strictly prioritizes user constraints (Budget/ETA) and cuts off the list at 10 items to prevent choice paralysis. OptiMeal also features stateless content-based constraint solving rather than massive collaborative filtering.
 
 ---
 

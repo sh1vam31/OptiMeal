@@ -41,7 +41,6 @@ export default function ExplorationFeed({
             { name: "Asian & Bowls", icon: "🍜" },
             { name: "North Indian", icon: "🥘" },
             { name: "South Indian", icon: "🫓" },
-            { name: "Healthy", icon: "🥗" },
             { name: "Desserts", icon: "🍨" },
             { name: "Beverages", icon: "🥤" },
           ].map((cat) => (

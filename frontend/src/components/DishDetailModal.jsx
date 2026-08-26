@@ -19,13 +19,13 @@ export default function DishDetailModal({
     .slice(0, 6);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto animate-in fade-in duration-200">
-      <div className="w-full max-w-4xl bg-[#141820] text-white rounded-3xl border border-white/15 shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/50 dark:bg-black/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto animate-in fade-in duration-200">
+      <div className="w-full max-w-4xl bg-white dark:bg-[#141820] text-gray-900 dark:text-white rounded-3xl border border-gray-200 dark:border-white/15 shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 z-20 p-2.5 rounded-full bg-slate-950/80 text-gray-300 hover:text-white hover:bg-gray-800 transition-all border border-white/10"
+          className="absolute top-5 right-5 z-20 p-2.5 rounded-full bg-gray-100/80 dark:bg-slate-950/80 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-800 transition-all border border-gray-300 dark:border-white/10"
           aria-label="Close detail modal"
         >
           <X className="w-5 h-5" />
@@ -60,13 +60,13 @@ export default function DishDetailModal({
             {/* Title & Info */}
             <div className="flex-1 space-y-4">
               <div>
-                <span className="text-xs uppercase font-mono font-black text-rose-400 tracking-wider block">
-                  INTENT EATS DETAIL
+                <span className="text-xs uppercase font-mono font-black text-[#E23744] dark:text-rose-400 tracking-wider block">
+                  OPTIMEAL DETAIL
                 </span>
-                <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
                   {item.name}
                 </h2>
-                <p className="text-sm text-gray-300 font-medium mt-1">Prepared fresh by <strong className="text-white">{item.restaurant_name}</strong></p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 font-medium mt-1">Prepared fresh by <strong className="text-gray-900 dark:text-white">{item.restaurant_name}</strong></p>
               </div>
 
               {/* Sub-Header Metrics */}
@@ -79,7 +79,7 @@ export default function DishDetailModal({
                   <Clock className="w-4 h-4 text-amber-400" />
                   {item.eta_mins} mins delivery
                 </span>
-                <span className="text-gray-200 bg-gray-800 px-3 py-1 rounded-xl border border-white/10 text-xs">
+                <span className="text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-xl border border-gray-200 dark:border-white/10 text-xs">
                   {item.calories} kcal • {item.protein_g}g Protein
                 </span>
               </div>
@@ -102,7 +102,7 @@ export default function DishDetailModal({
                   onClick={() => {
                     onAddToCart(item);
                   }}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black text-sm transition-all shadow-xl shadow-rose-600/30 flex items-center gap-2 active:scale-95"
+                  className="px-6 py-3 rounded-xl bg-[#E23744] hover:bg-[#c9303d] text-white font-black text-sm transition-all shadow-xl shadow-[#E23744]/30 flex items-center gap-2 active:scale-95"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Add to Cart (₹{item.price})</span>
@@ -126,7 +126,7 @@ export default function DishDetailModal({
             </div>
 
             {/* Bullet Point Explanations */}
-            <ul className="space-y-2.5 text-xs md:text-sm text-gray-300 font-medium">
+            <ul className="space-y-2.5 text-xs md:text-sm text-gray-600 dark:text-gray-300 font-medium">
               <li className="flex items-start gap-2.5">
                 <span className="text-rose-400 font-bold">•</span>
                 <span>Matches active budget limit ({bd.budget_desc || `Saves under max budget`}).</span>
@@ -147,42 +147,42 @@ export default function DishDetailModal({
 
             {/* Signal Contribution Progress Bars */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-2 text-xs font-mono">
-              <div className="space-y-1.5 bg-gray-900/80 p-3 rounded-xl border border-white/5">
+              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-900/80 p-3 rounded-xl border border-gray-200 dark:border-white/5">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Budget</span>
                   <strong className="text-rose-400">{bd.budget_fit_pct || 38}%</strong>
                 </div>
-                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
                   <div className="bg-rose-500 h-full" style={{ width: `${bd.budget_fit_pct || 38}%` }} />
                 </div>
               </div>
 
-              <div className="space-y-1.5 bg-gray-900/80 p-3 rounded-xl border border-white/5">
+              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-900/80 p-3 rounded-xl border border-gray-200 dark:border-white/5">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Speed</span>
                   <strong className="text-amber-400">{bd.speed_pct || 30}%</strong>
                 </div>
-                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
                   <div className="bg-amber-500 h-full" style={{ width: `${bd.speed_pct || 30}%` }} />
                 </div>
               </div>
 
-              <div className="space-y-1.5 bg-gray-900/80 p-3 rounded-xl border border-white/5">
+              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-900/80 p-3 rounded-xl border border-gray-200 dark:border-white/5">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Quality</span>
                   <strong className="text-emerald-400">{bd.rating_pct || 20}%</strong>
                 </div>
-                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
                   <div className="bg-emerald-500 h-full" style={{ width: `${bd.rating_pct || 20}%` }} />
                 </div>
               </div>
 
-              <div className="space-y-1.5 bg-gray-900/80 p-3 rounded-xl border border-white/5">
+              <div className="space-y-1.5 bg-gray-50 dark:bg-gray-900/80 p-3 rounded-xl border border-gray-200 dark:border-white/5">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Dietary</span>
                   <strong className="text-blue-400">{bd.diet_match_pct || 12}%</strong>
                 </div>
-                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
                   <div className="bg-blue-500 h-full" style={{ width: `${bd.diet_match_pct || 12}%` }} />
                 </div>
               </div>
@@ -215,7 +215,7 @@ export default function DishDetailModal({
                         ₹{sItem.price}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-gray-300 group-hover:text-rose-400 transition-colors line-clamp-1">
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 group-hover:text-[#E23744] dark:group-hover:text-rose-400 transition-colors line-clamp-1">
                       {sItem.name}
                     </span>
                   </button>

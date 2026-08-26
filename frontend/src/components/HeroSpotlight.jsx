@@ -19,7 +19,7 @@ export default function HeroSpotlight({
   const richDescription = `Authentic ${item.name} prepared fresh by ${item.restaurant_name}. Features hand-picked fresh ingredients, traditional culinary spices, and optimal nutritional balance (${item.calories} kcal, ${item.protein_g}g protein). Rated ${item.rating}★ by ${item.rating_count} food lovers.`;
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#141820] via-[#1A202C] to-[#0D1117] border border-white/10 p-6 md:p-10 shadow-2xl space-y-6">
+    <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-r dark:from-[#141820] dark:via-[#1A202C] dark:to-[#0D1117] border border-gray-200 dark:border-white/10 p-6 md:p-10 shadow-lg dark:shadow-2xl space-y-6 transition-colors duration-200">
       
       {/* Background Subtle Gradient Glow */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -30,42 +30,42 @@ export default function HeroSpotlight({
         <div className="flex-1 space-y-5">
           
           <div className="space-y-2">
-            <span className="text-xs font-mono font-black uppercase text-rose-500 tracking-widest block">
+            <span className="text-xs font-mono font-black uppercase text-[#E23744] tracking-widest block">
               {personaTitle ? `TOP PICK FROM "${personaTitle.toUpperCase()}"` : `TOP PICK FOR YOU`}
             </span>
-            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-none">
+            <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
               {item.name}
             </h1>
           </div>
 
           {/* Sub Header Specs */}
           <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
-            <span className="text-emerald-400 font-bold bg-emerald-500/15 px-2.5 py-1 rounded-lg border border-emerald-500/30 text-sm flex items-center gap-1">
-              <Star className="w-4 h-4 fill-emerald-400 text-emerald-400" />
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-500/30 text-sm flex items-center gap-1">
+              <Star className="w-4 h-4 fill-emerald-500 dark:fill-emerald-400 text-emerald-500 dark:text-emerald-400" />
               {item.rating}★
             </span>
-            <span className="text-gray-300 font-bold text-sm">₹{item.price}</span>
+            <span className="text-gray-800 dark:text-gray-300 font-bold text-sm">₹{item.price}</span>
             <span className="text-gray-400">•</span>
-            <span className="text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            <span className="text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-500/20">
               {item.eta_mins} mins delivery
             </span>
             <span className="text-gray-400">•</span>
-            <span className="text-gray-300 bg-gray-800 px-2 py-0.5 rounded">
+            <span className="text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
               {item.calories} kcal • {item.protein_g}g Protein
             </span>
           </div>
 
           {/* Full Synopsis / Description (Matching Screenshot 2) */}
-          <p className="text-sm md:text-base text-gray-300 max-w-2xl leading-relaxed font-normal">
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed font-normal">
             {richDescription}
           </p>
 
           {/* Reason Pills (Matching Screenshot 2) */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span className="px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/15 text-xs font-bold">
+            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/15 text-xs font-bold">
               Flavor Profile Match: {item.category}, {item.is_veg ? 'Pure Veg' : 'Gourmet Meat'}, {item.protein_g >= 25 ? 'High Protein' : 'Balanced Macros'}
             </span>
-            <span className="px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/15 text-xs font-bold">
+            <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/15 text-xs font-bold">
               Viewers with similar taste also rated this highly
             </span>
           </div>
@@ -74,7 +74,7 @@ export default function HeroSpotlight({
           <div className="flex flex-wrap items-center gap-3 pt-3">
             <button
               onClick={() => setShowBreakdown(!showBreakdown)}
-              className="px-5 py-3 rounded-xl bg-white text-slate-950 hover:bg-gray-200 font-black text-xs transition-all shadow-lg flex items-center gap-2 active:scale-95"
+              className="px-5 py-3 rounded-xl bg-gray-100 dark:bg-white text-gray-900 dark:text-slate-950 hover:bg-gray-200 font-black text-xs transition-all shadow-sm flex items-center gap-2 active:scale-95 border border-gray-200 dark:border-transparent"
             >
               <span>Why this meal</span>
               {showBreakdown ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -83,16 +83,16 @@ export default function HeroSpotlight({
             {onEditTaste && (
               <button
                 onClick={onEditTaste}
-                className="px-5 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-extrabold text-xs transition-all border border-white/15 flex items-center gap-2"
+                className="px-5 py-3 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-white font-extrabold text-xs transition-all border border-gray-200 dark:border-white/15 flex items-center gap-2"
               >
-                <RotateCcw className="w-4 h-4 text-rose-400" />
+                <RotateCcw className="w-4 h-4 text-[#E23744]" />
                 <span>Edit my taste</span>
               </button>
             )}
 
             <button
               onClick={() => onAddToCart(item)}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-extrabold text-xs transition-all shadow-xl shadow-rose-600/30 flex items-center gap-2 active:scale-95 ml-auto"
+              className="px-6 py-3 rounded-xl bg-[#E23744] hover:bg-[#c9303d] text-white font-extrabold text-xs transition-all shadow-xl shadow-[#E23744]/30 flex items-center gap-2 active:scale-95 ml-auto"
             >
               <ShoppingBag className="w-4 h-4" />
               <span>Add to Cart</span>
@@ -118,15 +118,15 @@ export default function HeroSpotlight({
 
       {/* Expandable "Why This Meal" Bullet Breakdown (Matching Screenshot 2) */}
       {showBreakdown && (
-        <div className="p-6 rounded-2xl bg-black/60 border border-rose-500/30 space-y-4 animate-in fade-in duration-200">
+        <div className="p-6 rounded-2xl bg-gray-50 dark:bg-black/60 border border-[#E23744]/20 dark:border-rose-500/30 space-y-4 animate-in fade-in duration-200">
           
-          <h4 className="text-xs font-extrabold uppercase tracking-wider text-rose-400 font-mono flex items-center gap-2">
+          <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#E23744] dark:text-rose-400 font-mono flex items-center gap-2">
             <ShieldCheck className="w-4 h-4" />
             <span>Why this was recommended</span>
           </h4>
 
           {/* Bullet Explanations */}
-          <ul className="space-y-2 text-xs md:text-sm text-gray-300 font-medium">
+          <ul className="space-y-2 text-xs md:text-sm text-gray-600 dark:text-gray-300 font-medium">
             <li className="flex items-start gap-2">
               <span className="text-rose-400 font-bold">•</span>
               <span>
@@ -151,42 +151,42 @@ export default function HeroSpotlight({
 
           {/* Signal Contribution Bars */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 text-xs font-mono">
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
                 <span className="text-gray-400">Budget</span>
                 <strong className="text-emerald-400">{bd.budget_fit_pct || 38}%</strong>
               </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${bd.budget_fit_pct || 38}%` }} />
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
                 <span className="text-gray-400">Speed</span>
                 <strong className="text-amber-400">{bd.speed_pct || 30}%</strong>
               </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-amber-500 h-full rounded-full" style={{ width: `${bd.speed_pct || 30}%` }} />
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
                 <span className="text-gray-400">Quality</span>
                 <strong className="text-rose-400">{bd.rating_pct || 20}%</strong>
               </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-rose-500 h-full rounded-full" style={{ width: `${bd.rating_pct || 20}%` }} />
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
                 <span className="text-gray-400">Dietary</span>
                 <strong className="text-blue-400">{bd.diet_match_pct || 12}%</strong>
               </div>
-              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
                 <div className="bg-blue-500 h-full rounded-full" style={{ width: `${bd.diet_match_pct || 12}%` }} />
               </div>
             </div>

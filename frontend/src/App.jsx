@@ -11,6 +11,7 @@ import DishDetailModal from './components/DishDetailModal';
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(false); // Zomato Light Theme by default
   const [isOnboarding, setIsOnboarding] = useState(true); // Step 1: Onboarding Taste Picker
   const [activeTab, setActiveTab] = useState('browse'); // 'browse', 'refine_search', 'how_it_works'
   const [mode, setMode] = useState('exploration'); // 'exploration', 'exploitation', 'hybrid'
@@ -47,6 +48,15 @@ export default function App() {
 
   // Toast Notification State
   const [toastMessage, setToastMessage] = useState('');
+
+  // Handle Dark Mode Class on Root
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -245,10 +255,12 @@ export default function App() {
   // Step 1: Onboarding Taste Picker View (No top Navbar on landing page)
   if (isOnboarding) {
     return (
-      <div className="min-h-screen bg-[#0D0F12] text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
+      <div className="min-h-screen bg-gray-50 dark:bg-[#0D0F12] text-gray-900 dark:text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white transition-colors duration-200">
         <OnboardingPage
           seedItems={items}
           onGenerateRecommendations={handleOnboardingGenerate}
+          isDarkMode={isDarkMode}
+          setIsDarkMode={setIsDarkMode}
         />
       </div>
     );
@@ -256,9 +268,11 @@ export default function App() {
 
   // Step 2: Recommendations Results Page
   return (
-    <div className="min-h-screen bg-[#0D0F12] text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0D0F12] text-gray-900 dark:text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white transition-colors duration-200">
       {/* Top Navbar */}
       <Navbar
+        isDarkMode={isDarkMode}
+        setIsDarkMode={setIsDarkMode}
         activeTab={activeTab}
         setActiveTab={(tab) => {
           setActiveTab(tab);
@@ -307,12 +321,12 @@ export default function App() {
             {/* Full-Width Food Feed Grid */}
             <div className="w-full">
               {error ? (
-                <div className="p-8 rounded-2xl bg-rose-950/30 border border-rose-500/30 text-rose-300 text-center space-y-4">
+                <div className="p-8 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-center space-y-4">
                   <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
                   <p className="font-bold text-sm">{error}</p>
                   <button
                     onClick={fetchRecommendations}
-                    className="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-500 transition-all inline-flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-xl bg-[#E23744] text-white font-bold text-xs hover:bg-[#c9303d] transition-all inline-flex items-center gap-1.5"
                   >
                     <RefreshCw className="w-4 h-4" />
                     <span>Retry Connection</span>

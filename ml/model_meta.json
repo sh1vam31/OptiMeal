@@ -1,0 +1,21 @@
+{
+  "features": [
+    "price",
+    "prep_time",
+    "eta_mins",
+    "rating",
+    "is_veg",
+    "is_high_protein",
+    "is_keto",
+    "is_gluten_free",
+    "popularity_score",
+    "budget_constraint",
+    "eta_constraint",
+    "budget_diff",
+    "eta_diff",
+    "budget_fit_ratio",
+    "eta_fit_ratio",
+    "diet_match_score"
+  ],
+  "mse": 0.0004902529605544023
+}

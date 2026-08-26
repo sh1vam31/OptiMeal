@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #0D1117;
+    --bg-card: #161B22;
+    --bg-card-hover: #1C2128;
+    --zomato-red: #E23744;
+    --swiggy-orange: #FC8019;
+    --emerald-accent: #10B981;
+  }
+
+  body {
+    background-color: #0D1117;
+    color: #F0F6FC;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Zomato & Swiggy Glassmorphism & Card Styles */
+.zomato-card {
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zomato-card:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.1);
+  transform: translateY(-3px);
+}
+
+.swiggy-badge-gradient {
+  background: linear-gradient(135deg, rgba(252, 128, 25, 0.2), rgba(226, 55, 68, 0.2));
+  border: 1px solid rgba(252, 128, 25, 0.3);
+}
+
+/* Custom Styled Range Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #21262D;
+  border-radius: 9999px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10B981, #059669);
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.9);
+}
+
+/* Swiggy Style Horizontal Scroll Bar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Skeleton Glow */
+@keyframes skeleton-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+.skeleton-pulse {
+  animation: skeleton-glow 1.5s ease-in-out infinite;
+}

@@ -1,155 +1,121 @@
-# IntentEats – Web-Based Context-Aware Food Recommender
+# OptiMeal – Context-Aware Food Recommender System
 
 > A responsive Single Page Application (SPA) designed to solve the **"Paradox of Choice"** in food delivery platforms through strict context constraint filtering and dynamic XGBoost item ranking.
 
----
-
-## 1. Problem Statement & Motivation (The Paradox of Choice)
-
-Modern food delivery platforms like Zomato and UberEats present users with thousands of restaurant options and endless scroll feeds. When hungry, users face **Choice Overload** (The Paradox of Choice), spending 20+ minutes scrolling through listings instead of placing an order.
-
-**IntentEats** flips this paradigm by enforcing **Intent-First Selection**:
-- Users specify their strict current context (Budget ₹100–₹1000, Max Delivery Time 15–60+ mins, and Dietary preferences).
-- A 2-stage recommendation engine filters candidates in < 50ms and ranks top options using an XGBoost Machine Learning model.
-- Every recommendation comes with dynamic **Explainability Badges** (e.g., `"⚡ Ultra Fast - 12 mins"`, `"⭐ Top Rated under ₹300"`) so users immediately understand why an item was chosen.
+**Live Deployment**: `[Deployment Link Will Go Here]`
 
 ---
 
-## 2. System Architecture
+## 1. Problem Statement
+Modern food delivery platforms like Zomato and UberEats present users with endless scroll feeds and thousands of restaurant options. When hungry, users face **Choice Overload** (The Paradox of Choice), spending 20+ minutes scrolling through listings instead of placing an order. Current recommendation engines optimize for absolute engagement (dwell time) rather than immediate user constraints (budget, speed, diet).
 
+## 2. Use Case and Motivation
+**OptiMeal** flips this paradigm by enforcing an **Intent-First Selection** use case.
+Instead of showing generic "Popular Near You" carousels, the system asks for the user's strict current context (Budget limits, Max Delivery Time, and Dietary preferences). The motivation is to build a system that guarantees the user will only see the top 10 meals they can actually afford to order right now.
+
+## 3. Approach & Recommendation Methodology
+OptiMeal uses a **Two-Stage Hybrid Architecture**:
+1. **Stage 1: Candidate Generation (SQL)**: When a request is made, the PostgreSQL/SQLite database instantly filters out any food items that violate the user's hard constraints (e.g., dropping anything over ₹500 or taking longer than 30 minutes). This narrows the 14,000+ item dataset down to ~40 candidates in under 15ms.
+2. **Stage 2: Ranking Engine (XGBoost ML)**: The remaining candidates are passed to an XGBoost Regressor model. The model ranks items by weighting four key signals:
+   - *Budget Savings Margin* (40%)
+   - *ETA Speed Advantage* (30%)
+   - *Dietary Alignment* (20%)
+   - *Bayesian Rating Quality Prior* (10%)
+3. **Stage 3: Maximal Marginal Relevance (MMR)**: A final diversity pass ensures no duplicate categories flood the top 10 list.
+
+## 4. System Architecture
 ```
 +-----------------------------------------------------------------------------------+
 |                           React SPA (Vite + Tailwind CSS)                         |
 |  +-----------------------------+     +-----------------------------------------+  |
-|  | Control Panel               |     | Main Feed                               |  |
-|  | - Budget Slider (₹100-₹1000) |     | - Cold-Start Trending Time-of-Day Banner|  |
-|  | - ETA Slider (15-60m)       |     | - Exploration Mode (5 Category Cards)   |  |
-|  | - Dietary Toggles           |     | - Exploitation Mode (XGBoost List)      |  |
+|  | Refine Search Panel         |     | Main Feed / UI                          |  |
+|  | - Budget Slider (<₹1000)    |     | - Top 10 Dynamic Grid                   |  |
+|  | - ETA Slider (<60m)         |     | - "Why this meal?" Details Modal        |  |
+|  | - Dietary & Cuisine Toggles |     | - Transparent Metrics & Explainability  |  |
 |  +--------------+--------------+     +-----------------------------------------+  |
 +-----------------|-----------------------------------------------------------------+
-                  | Dynamic Fetch (Debounced 300ms)
+                  | Dynamic JSON Payload Fetch 
                   v
 +-----------------------------------------------------------------------------------+
 |                             FastAPI REST Backend                                  |
-|  +--------------------+    +----------------------+    +-----------------------+  |
-|  | GET /trending      |    | GET /explore         |    | POST /exploit         |  |
-|  +---------+----------+    +----------+-----------+    +-----------+-----------+  |
-|            |                          |                            |              |
-|            +--------------------------+----------------------------+              |
-|                                       |                                           |
-|   Stage 1: Candidate Generation       v                                           |
-|   - PostgreSQL/SQLite Composite Index Query (category, price, prep_time)          |
-|                                       | Candidate Items (<50ms)                   |
+|   Stage 1: SQL Candidate Generation (SQLite/Postgres Composite Indexing)          |
+|                                       | Candidate Items (<15ms)                   |
 |   Stage 2: ML Item Ranking            v                                           |
-|   - XGBoost Regressor Model Inference                                             |
-|   - Explainability Badge Generator ("Fastest", "Top Rated", "High Protein")      |
+|   - XGBoost Regressor Model Inference + MMR Diversity Filter                      |
 +-----------------------------------------------------------------------------------+
 ```
 
+## 5. Dataset Selection
+- **Dataset Source**: Inspired by and derived from the Kaggle Zomato Restaurants & Food Dataset (`shrutimehta/zomato-restaurants-data`).
+- **Scale**: 14,512 cleaned food item records across global and Indian cities.
+- **Features**: Structured SQL entities containing real dish names, categories, ratings, prices, prep_times, ETAs, and calculated macro-nutrients (Calories, Protein, Carbs) with dietary flags (`is_veg`, `is_high_protein`, `is_keto`, `is_gluten_free`).
+
+## 6. Technologies Used
+- **Frontend**: React (Vite), Tailwind CSS, Lucide Icons.
+- **Backend**: Python, FastAPI, SQLAlchemy (SQLite/PostgreSQL).
+- **Machine Learning**: XGBoost, Scikit-learn, Pandas, NumPy.
+
+## 7. Assumptions Made
+1. **Static Inventory**: Assumes all food items in the database are currently available (no live "sold out" webhook hooks).
+2. **Simulated Geospatial Data**: Since live routing APIs (like Google Maps) are expensive, ETA and delivery constraints are simulated using backend prep-time heuristics.
+3. **Explicit Feedback**: Assumes the user is willing to explicitly state their constraints (Budget/ETA) rather than inferring them implicitly from click-stream data.
+
+## 8. Key Design Decisions
+1. **Explainability Over Black Box**: Added a click-to-open detail modal on every dish card that explicitly tells the user *why* a dish was recommended (e.g., "Saves ₹200", "High Protein match").
+2. **"How It Works" Engineering Page**: Built an interactive transparency page directly into the app (inspired by Netflix's engineering blog) to explain the algorithm visually.
+3. **Strict Two-Stage Split**: Decision to use SQL for hard filtering rather than relying on ML for constraints ensures 100% adherence to user budgets and sub-20ms latency.
+
+## 9. Evaluation Methodology
+The success of OptiMeal is evaluated using business logic and offline ranking metrics rather than purely stochastic accuracy:
+- **Constraint Satisfaction Rate (Precision)**: Must be 100%. If a user says Budget < ₹300, 0 items above ₹300 should be returned.
+- **Rank Latency**: Measured via middleware headers. Target is P50 < 15ms.
+- **Diversity Score (Coverage)**: Measured by category entropy. The MMR penalty ensures users see diverse dish types (burgers, salads, bowls) rather than 10 identical chicken wraps.
+
+## 10. Test Cases
+### Successful Scenario
+- **Input**: User selects Budget < ₹350, ETA < 30 mins, and "High Protein" + "Non-Veg".
+- **Result**: The SQL engine instantly drops all expensive steaks and slow-cooking pizzas. The XGBoost engine ranks a ₹250 Grilled Chicken Salad (15m prep time) as #1. The UI correctly renders the "High Protein" and "Saves ₹100" explainability badges.
+
+### Failure Scenario (Over-Constrained)
+- **Input**: User selects contradictory constraints: Budget < ₹50, Minimum Rating > 4.5 Stars, "Vegan" + "Keto".
+- **Result**: The system struggles because no 5-star Vegan Keto meals exist for ₹50. 
+- **Handling**: The SQL candidate generator returns 0 results. The backend gracefully catches this and triggers an "Auto-Relax" fallback, returning the closest matches while informing the user their constraints were too strict.
+
+## 11. Known Limitations
+1. No collaborative filtering (user-item matrix). Recommendations are entirely content-based and constraint-driven.
+2. The model relies on explicit filters rather than implicit session dwell time.
+3. Cold start for completely new users requires them to manually adjust sliders rather than instantly predicting their budget context.
+
+## 12. Future Improvements
+1. **Two-Tower Neural Ranker**: Replace or ensemble the XGBoost model with a Deep Learning model to capture non-linear feature interactions.
+2. **LLM Diet Planner Integration**: Pass the Top 10 shortlist to an LLM to automatically generate a week-long personalized meal plan based on the user's exact macros.
+3. **Multi-Armed Bandit (MAB)**: Implement UCB (Upper Confidence Bound) to occasionally explore and surface hidden gems that users wouldn't normally search for.
+
+## 13. Bonus Challenge: Product Inspiration (Netflix & Zomato)
+**Inspiration**: OptiMeal's UI takes heavy inspiration from Zomato and Swiggy's visual food cards, while its recommendation transparency (the "How It Works" page and Explainability badges) takes direct inspiration from **Netflix's "Marquee" / Tech Blog**.
+
+- **Similarities**: Like Netflix, OptiMeal uses a multi-stage pipeline (Filter -> Rank -> Diversify). Like Zomato, it utilizes high-quality food photography and clear pricing.
+- **Differences**: Zomato prioritizes sponsored restaurants and generic carousels. OptiMeal strictly prioritizes user constraints. Netflix uses massive collaborative filtering arrays; OptiMeal uses stateless content-based constraint solving.
+
 ---
 
-## 3. Dataset Selection & Ingestion Pipeline
-
-- **Dataset Source**: Downloaded directly from the official **Kaggle Zomato Restaurants & Food Dataset** (`shrutimehta/zomato-restaurants-data`) using `kagglehub`.
-- **29,753 Raw Records**: Contains real restaurant food listings across global and Indian cities (Delhi NCR, Bangalore, Kolkata, Mumbai, Hawaii, Tokyo, etc.).
-- **Real Food Images**: Ingests real food dish photos hosted on Zomato's CDN (`https://b.zmtcdn.com/...`) alongside fallback high-resolution culinary photography.
-- **Automated Ingestion Script (`ml/ingest_kaggle_dataset.py`)**: Transforms raw Kaggle JSON/CSV records into structured SQL food entities with categories, ratings, votes, prices, macros, ETAs, and dietary flags (`is_veg`, `is_high_protein`, `is_keto`, `is_gluten_free`).
-
----
-
-## 4. Recommendation Methodology
-
-### Stage 1: Candidate Generation (PostgreSQL)
-Candidate generation uses composite indexes on `(category, price, prep_time)` to instantly filter out foods that violate the user's active constraints:
-```sql
-SELECT * FROM food_items 
-WHERE price <= :budget 
-  AND eta_mins <= :eta 
-  AND is_veg = :is_veg;
-```
-
-### Stage 2: Ranking (FastAPI + XGBoost)
-Filtered candidates are scored using a trained **XGBoost Regressor** model with a feature matrix combining:
-- Budget margin (`budget - price`) & Price fit ratio
-- ETA margin (`eta_constraint - eta_mins`)
-- Rating & Popularity score
-- Dietary match score
-- Explainability Badge Generator attached to top-ranked items.
-
----
-
-## 5. Assumptions & Key Design Decisions
-
-1. **Sub-200ms Latency SLA**: The 2-stage split ensures that candidate generation runs in < 20ms and XGBoost inference completes in < 10ms, achieving end-to-end API response times under 10ms (p99 < 15ms).
-2. **Debounced Control Panel (300ms)**: Slider inputs debounce updates to avoid spamming the backend API while maintaining a smooth visual slider UI.
-3. **Database Dual Compatibility**: Uses SQLAlchemy async ORM supporting PostgreSQL (for production deployments on Render/Railway) with automatic SQLite fallback for zero-dependency local setup.
-
----
-
-## 6. Evaluation Metrics & Test Cases
-
-### Primary Metrics
-- **Latency**: Measured via middleware header `X-Process-Time-Ms` (Target < 200ms, Actual p99 = **8.69ms**).
-- **Diversity Score**: Category entropy ratio across Exploration cards (Target = **1.00**).
-- **NDCG@5**: Normalized Discounted Cumulative Gain for XGBoost ranking quality (Target = **1.0000**).
-
-### Automated Test Cases (`pytest tests/test_recommendations.py`)
-1. **Success Scenario**: Strict user constraints (Budget < ₹300, ETA < 25m, Veg). Filters out expensive/slow options, returning relevant meals with badges.
-2. **Failure Scenario ("No Match" State)**: Impossible constraints (Budget < ₹50, ETA < 5m). Gracefully displays a "No exact matches" UI state and recommends closest relaxed alternatives.
-
----
-
-## 7. Setup & Run Instructions
-
-### Prerequisites
-- **Python 3.10+**
-- **Node.js 18+** & **npm**
-
-### Step 1: Install Dependencies & Train ML Model
+## 14. Local Setup Instructions
 
 ```bash
-# Clone repository
-git clone https://github.com/your-username/IntentEats.git
-cd IntentEats
+# 1. Clone repository
+git clone https://github.com/sh1vam31/OptiMeal.git
+cd OptiMeal
 
-# Install backend dependencies
+# 2. Install backend dependencies & Train Model
 python3 -m pip install -r requirements.txt
-
-# Train XGBoost ranking model
 python3 ml/train_model.py
-```
 
-### Step 2: Run Backend API Server
-
-```bash
-# Start FastAPI backend (runs on http://127.0.0.1:8000)
+# 3. Start Backend API
 PYTHONPATH=. python3 -m uvicorn backend.main:app --reload --port 8000
-```
 
-### Step 3: Run Frontend Single Page Application
-
-Open a new terminal window:
-
-```bash
+# 4. Start Frontend (In a new terminal)
 cd frontend
-
-# Install npm packages
 npm install
-
-# Start Vite dev server (runs on http://localhost:3000)
 npm run dev
 ```
-
-Open your browser at **`http://localhost:3000`** to access IntentEats!
-
----
-
-### Step 4: Run Automated Tests & Benchmarks
-
-```bash
-# Run Pytest suite
-PYTHONPATH=. python3 -m pytest tests/test_recommendations.py
-
-# Run Quantitative Latency & Metric Benchmark
-PYTHONPATH=. python3 scripts/benchmark.py
-```
+Open `http://localhost:5173` to interact with the system.

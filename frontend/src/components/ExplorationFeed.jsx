@@ -12,17 +12,6 @@ export default function ExplorationFeed({
   return (
     <div className="space-y-6">
       
-      {/* Time-of-Day Trending Banner */}
-      {trendingBanner && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/40 via-rose-950/30 to-[#141820] border border-amber-500/30 flex items-center justify-between text-xs font-mono text-amber-300 shadow-lg">
-          <div className="flex items-center space-x-2">
-            <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">✨</span>
-            <span className="font-extrabold uppercase tracking-wider">SWIGGY & ZOMATO INSPIRED RECOMMENDATIONS</span>
-          </div>
-          <span className="font-extrabold text-amber-400">{trendingBanner}</span>
-        </div>
-      )}
-
       {/* Swiggy Style Horizontal Category Avatar Bubbles */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
@@ -32,7 +21,7 @@ export default function ExplorationFeed({
           <span className="text-xs font-mono text-emerald-400">Scroll & click to filter</span>
         </div>
 
-        <div className="flex items-center gap-4 overflow-x-auto pb-3 scrollbar-none">
+        <div className="flex items-center gap-5 lg:gap-8 overflow-x-auto pb-3 scrollbar-none justify-start xl:justify-between">
           {[
             { name: "Burgers", icon: "🍔" },
             { name: "Pizzas", icon: "🍕" },
@@ -47,10 +36,10 @@ export default function ExplorationFeed({
             <button
               key={cat.name}
               onClick={() => onSelectCategory(cat.name)}
-              className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#141820] hover:bg-rose-600/20 border border-white/10 hover:border-rose-500/50 transition-all flex-shrink-0 w-20 group cursor-pointer"
+              className="flex flex-col items-center justify-center p-4 lg:p-5 rounded-2xl bg-[#141820] hover:bg-rose-600/20 border border-white/10 hover:border-rose-500/50 transition-all flex-shrink-0 w-24 lg:w-32 group cursor-pointer"
             >
-              <span className="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-              <span className="text-[11px] font-bold text-gray-300 group-hover:text-white mt-1 line-clamp-1">
+              <span className="text-3xl lg:text-4xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+              <span className="text-[11px] lg:text-xs font-bold text-gray-300 group-hover:text-white mt-2 line-clamp-1">
                 {cat.name}
               </span>
             </button>

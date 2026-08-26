@@ -63,10 +63,7 @@ export default function HeroSpotlight({
           {/* Reason Pills (Matching Screenshot 2) */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <span className="px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/15 text-xs font-bold">
-              Because you liked {personaTitle || item.category}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/15 text-xs font-bold">
-              Shared DNA: {item.category}, {item.is_veg ? 'Pure Veg' : 'Gourmet Meat'}, {item.protein_g >= 25 ? 'High Protein' : 'Balanced Macros'}
+              Flavor Profile Match: {item.category}, {item.is_veg ? 'Pure Veg' : 'Gourmet Meat'}, {item.protein_g >= 25 ? 'High Protein' : 'Balanced Macros'}
             </span>
             <span className="px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/15 text-xs font-bold">
               Viewers with similar taste also rated this highly

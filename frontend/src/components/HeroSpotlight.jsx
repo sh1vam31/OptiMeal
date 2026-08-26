@@ -115,9 +115,6 @@ export default function HeroSpotlight({
             <span className="bg-slate-950/90 text-rose-400 px-2.5 py-1 rounded-lg border border-rose-500/40">
               {item.is_veg ? "🟢 PURE VEG" : "🔴 NON-VEG"}
             </span>
-            <span className="bg-slate-950/90 text-emerald-400 px-2.5 py-1 rounded-lg border border-emerald-500/40">
-              {scorePct}% Match
-            </span>
           </div>
         </div>
       </div>
@@ -135,19 +132,23 @@ export default function HeroSpotlight({
           <ul className="space-y-2 text-xs md:text-sm text-gray-300 font-medium">
             <li className="flex items-start gap-2">
               <span className="text-rose-400 font-bold">•</span>
-              <span>Because you liked {personaTitle || item.category}</span>
+              <span>
+                {bd.category_weight_pct > 0 
+                  ? <span><strong>XGBoost Prediction:</strong> Your selection frequency for {item.category} mathematically boosted this dish's AI score by {bd.category_weight_pct}%!</span>
+                  : <span><strong>Persona Match:</strong> Because you liked {personaTitle || item.category}</span>}
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 font-bold">•</span>
-              <span>Shared DNA: {item.category}, {item.is_veg ? 'Pure Veg' : 'Non-Veg'}, {item.eta_mins}m Speed</span>
+              <span><strong>Vector DNA Match:</strong> {item.category}, {item.is_veg ? 'Pure Veg' : 'Non-Veg'}, {item.eta_mins}m Speed Prediction</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-emerald-400 font-bold">•</span>
-              <span>Viewers with similar taste also rated this highly ({item.rating}★ across {item.rating_count} reviews)</span>
+              <span><strong>Collaborative Filtering:</strong> High confidence rating ({item.rating}★ across {item.rating_count} verified reviews)</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-blue-400 font-bold">•</span>
-              <span>High Bayesian quality score among IntentEats diners (Saves ₹{intOrFloat(priceSavings)} under limit)</span>
+              <span><strong>Budget Optimizer:</strong> Saves ₹{intOrFloat(priceSavings)} under your maximum limit while maximizing ETA margins.</span>
             </li>
           </ul>
 

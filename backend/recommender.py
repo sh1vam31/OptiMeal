@@ -262,12 +262,26 @@ def rank_candidates_with_xgboost(
                 "rating_pct": rating_pct,
                 "diet_match_pct": diet_match_pct,
                 "budget_desc": f"Saves ₹{savings} under max budget limit" if savings > 0 else "Within budget limit",
-                "speed_desc": f"Arrives in {item.eta_mins} mins ({time_saved}m faster than limit)" if time_saved > 0 else f"Arrives in {item.eta_mins} mins"
+                "speed_desc": f"Arrives in {item.eta_mins} mins ({time_saved}m faster than limit)" if time_saved > 0 else f"Arrives in {item.eta_mins} mins",
+                "category_weight_pct": int(round((category_weights[item.category] * 100))) if category_weights and item.category in category_weights else 0
             }
         }
         ranked.append(item_dict)
 
     ranked.sort(key=lambda x: x["predicted_score"], reverse=True)
+    
+    # Normalize scores with Min-Max scaling so they are spread between 75% and 99%
+    if len(ranked) > 1:
+        max_score = ranked[0]["predicted_score"]
+        min_score = ranked[-1]["predicted_score"]
+        if max_score > min_score:
+            for item in ranked:
+                scaled = 0.75 + (item["predicted_score"] - min_score) * (0.99 - 0.75) / (max_score - min_score)
+                item["predicted_score"] = round(scaled, 4)
+        elif max_score > 0.99:
+            for item in ranked:
+                item["predicted_score"] = 0.99
+
     return ranked
 
 async def get_exploration_recommendations(
@@ -469,6 +483,9 @@ async def get_hybrid_seed_recommendations(
     recommendations = [item for item in ranked if item["id"] not in seed_set]
     if not recommendations:
         recommendations = ranked
+        
+    # Limit to top 60 matches so the feed isn't overwhelmingly long
+    recommendations = recommendations[:60]
 
     return {
         "status": "success",

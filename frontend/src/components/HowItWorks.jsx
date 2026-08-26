@@ -142,8 +142,8 @@ export default function HowItWorks() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-6 rounded-2xl bg-rose-950/20 border border-rose-500/20 space-y-4">
-            <div className="flex items-center gap-2 text-rose-500 font-bold mb-2">
+          <div className="p-6 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-500/20 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-500 font-bold mb-2">
               <AlertTriangle className="w-5 h-5" /> Known Limits
             </div>
             <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-3 list-disc pl-4 marker:text-rose-500/50">
@@ -154,11 +154,11 @@ export default function HowItWorks() {
             </ul>
           </div>
 
-          <div className="p-6 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 space-y-4">
-            <div className="flex items-center gap-2 text-indigo-400 font-bold mb-2">
+          <div className="p-6 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-500/20 space-y-4 shadow-sm">
+            <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold mb-2">
               <Layers className="w-5 h-5" /> What I would build next
             </div>
-            <ul className="text-sm text-gray-400 space-y-3 list-disc pl-4 marker:text-indigo-500/50">
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-3 list-disc pl-4 marker:text-indigo-500/50">
               <li>A two-tower neural ranker evaluated on the same split to replace or ensemble with XGBoost.</li>
               <li>LLM-driven diet planning: passing the Top 10 shortlist to an LLM to generate a week-long meal plan.</li>
               <li>Bandit exploration (e.g., UCB or Thompson Sampling) to occasionally surface hidden gems that users wouldn't normally search for.</li>

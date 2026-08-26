@@ -62,7 +62,7 @@ export default function ExplorationFeed({
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
               <div key={n} className="h-72 rounded-2xl bg-white dark:bg-[#141820] animate-pulse border border-gray-200 dark:border-white/5 p-4 space-y-3">
                 <div className="h-40 bg-gray-200 dark:bg-gray-800 rounded-xl" />
@@ -72,7 +72,7 @@ export default function ExplorationFeed({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {items.map((item) => (
               <div
                 key={item.id}

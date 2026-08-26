@@ -20,6 +20,20 @@ export default function RefineSearchPage({
   const [localMinRating, setLocalMinRating] = useState(filters.min_rating || 3.5);
   const [localMaxCalories, setLocalMaxCalories] = useState(filters.max_calories || 1000);
 
+  // Check if current applied filters are the defaults
+  const isDefaultFilters =
+    filters.budget === 500 &&
+    filters.eta === 30 &&
+    !filters.is_veg &&
+    !filters.is_high_protein &&
+    !filters.is_keto &&
+    !filters.is_gluten_free &&
+    (!filters.cuisines || filters.cuisines.length === 0) &&
+    filters.min_rating === 3.5 &&
+    filters.max_calories === 1000;
+
+  const displayLimit = isDefaultFilters ? 60 : 10;
+
   const isInitialMount = useRef(true);
 
   // Sync internal state when filters prop updates
@@ -50,15 +64,29 @@ export default function RefineSearchPage({
   };
 
   const autoRelax = () => {
-    setLocalBudget(750);
-    setLocalEta(45);
-    setIsVeg(false);
-    setIsHighProtein(false);
-    setIsKeto(false);
-    setIsGlutenFree(false);
-    setLocalCuisines([]);
-    setLocalMinRating(3.5);
-    setLocalMaxCalories(1000);
+    const defaults = {
+      budget: 500,
+      eta: 30,
+      is_veg: false,
+      is_high_protein: false,
+      is_keto: false,
+      is_gluten_free: false,
+      cuisines: [],
+      min_rating: 3.5,
+      max_calories: 1000,
+    };
+    setLocalBudget(defaults.budget);
+    setLocalEta(defaults.eta);
+    setIsVeg(defaults.is_veg);
+    setIsHighProtein(defaults.is_high_protein);
+    setIsKeto(defaults.is_keto);
+    setIsGlutenFree(defaults.is_gluten_free);
+    setLocalCuisines(defaults.cuisines);
+    setLocalMinRating(defaults.min_rating);
+    setLocalMaxCalories(defaults.max_calories);
+
+    // Apply immediately so it triggers fetching and resets to "All Available Dishes" (60 items)
+    onFilterChange(defaults);
   };
 
   return (
@@ -97,14 +125,14 @@ export default function RefineSearchPage({
           <div className="flex items-center gap-3">
             <button
               onClick={autoRelax}
-              className="px-4 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+              className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-amber-500/15 dark:hover:bg-amber-500/25 text-gray-700 dark:text-amber-300 border border-gray-200 dark:border-amber-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Auto-Relax Constraints</span>
+              <span>Reset Filters</span>
             </button>
             <button
               onClick={applyFilters}
-              className="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+              className="px-4 py-2 rounded-xl bg-[#E23744] hover:bg-[#c9303d] text-white border border-transparent text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-[#E23744]/20"
             >
               <ArrowRight className="w-4 h-4" />
               <span>Apply Filters</span>
@@ -116,13 +144,13 @@ export default function RefineSearchPage({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* 1. Budget Slider */}
-          <div className="space-y-3 p-4 rounded-2xl bg-gray-50 dark:bg-[#1C2128] border border-gray-200 dark:border-white/5">
+          <div className="space-y-3 p-4 rounded-2xl bg-white dark:bg-[#1C2128] border border-gray-200 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center text-sm">
               <label htmlFor="refine-budget-slider" className="text-gray-800 dark:text-gray-200 font-extrabold flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-emerald-400" />
                 <span>Max Budget Limit</span>
               </label>
-              <span className="text-emerald-400 font-mono font-black text-sm bg-emerald-500/15 px-3 py-1 rounded-xl border border-emerald-500/30">
+              <span className="text-emerald-700 dark:text-emerald-400 font-mono font-black text-sm bg-emerald-50 dark:bg-emerald-500/15 px-3 py-1 rounded-xl border border-emerald-200 dark:border-emerald-500/30">
                 ₹{localBudget}
               </span>
             </div>
@@ -146,8 +174,8 @@ export default function RefineSearchPage({
                   onClick={() => setLocalBudget(val)}
                   className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
                     localBudget === val
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-sm'
-                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 border-emerald-600 dark:border-emerald-400 font-black shadow-sm'
+                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   ₹{val}
@@ -157,13 +185,13 @@ export default function RefineSearchPage({
           </div>
 
           {/* 2. Delivery Time Slider */}
-          <div className="space-y-3 p-4 rounded-2xl bg-gray-50 dark:bg-[#1C2128] border border-gray-200 dark:border-white/5">
+          <div className="space-y-3 p-4 rounded-2xl bg-white dark:bg-[#1C2128] border border-gray-200 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center text-sm">
               <label htmlFor="refine-eta-slider" className="text-gray-800 dark:text-gray-200 font-extrabold flex items-center gap-2">
                 <Clock className="w-4 h-4 text-amber-400" />
                 <span>Max Delivery Time</span>
               </label>
-              <span className="text-amber-400 font-mono font-black text-sm bg-amber-500/15 px-3 py-1 rounded-xl border border-amber-500/30">
+              <span className="text-amber-600 dark:text-amber-400 font-mono font-black text-sm bg-amber-50 dark:bg-amber-500/15 px-3 py-1 rounded-xl border border-amber-200 dark:border-amber-500/30">
                 {localEta} mins
               </span>
             </div>
@@ -187,8 +215,8 @@ export default function RefineSearchPage({
                   onClick={() => setLocalEta(val)}
                   className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
                     localEta === val
-                      ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-sm'
-                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-amber-500 text-white dark:text-slate-950 border-amber-500 dark:border-amber-400 font-black shadow-sm'
+                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {val}m
@@ -202,13 +230,13 @@ export default function RefineSearchPage({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* 3. Minimum Rating Slider */}
-          <div className="space-y-3 p-4 rounded-2xl bg-gray-50 dark:bg-[#1C2128] border border-gray-200 dark:border-white/5">
+          <div className="space-y-3 p-4 rounded-2xl bg-white dark:bg-[#1C2128] border border-gray-200 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center text-sm">
               <label htmlFor="refine-rating-slider" className="text-gray-800 dark:text-gray-200 font-extrabold flex items-center gap-2">
                 <Star className="w-4 h-4 text-yellow-400" />
                 <span>Minimum Rating</span>
               </label>
-              <span className="text-yellow-400 font-mono font-black text-sm bg-yellow-500/15 px-3 py-1 rounded-xl border border-yellow-500/30">
+              <span className="text-yellow-600 dark:text-yellow-400 font-mono font-black text-sm bg-yellow-50 dark:bg-yellow-500/15 px-3 py-1 rounded-xl border border-yellow-200 dark:border-yellow-500/30">
                 {localMinRating}+ Stars
               </span>
             </div>
@@ -232,8 +260,8 @@ export default function RefineSearchPage({
                   onClick={() => setLocalMinRating(val)}
                   className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
                     localMinRating === val
-                      ? 'bg-yellow-500 text-slate-950 border-yellow-400 font-black shadow-sm'
-                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-yellow-500 text-white dark:text-slate-950 border-yellow-500 dark:border-yellow-400 font-black shadow-sm'
+                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {val}
@@ -243,13 +271,13 @@ export default function RefineSearchPage({
           </div>
 
           {/* 4. Max Calories Slider */}
-          <div className="space-y-3 p-4 rounded-2xl bg-gray-50 dark:bg-[#1C2128] border border-gray-200 dark:border-white/5">
+          <div className="space-y-3 p-4 rounded-2xl bg-white dark:bg-[#1C2128] border border-gray-200 dark:border-white/5 shadow-sm">
             <div className="flex justify-between items-center text-sm">
               <label htmlFor="refine-calories-slider" className="text-gray-800 dark:text-gray-200 font-extrabold flex items-center gap-2">
                 <Activity className="w-4 h-4 text-cyan-400" />
                 <span>Max Calories</span>
               </label>
-              <span className="text-cyan-400 font-mono font-black text-sm bg-cyan-500/15 px-3 py-1 rounded-xl border border-cyan-500/30">
+              <span className="text-cyan-700 dark:text-cyan-400 font-mono font-black text-sm bg-cyan-50 dark:bg-cyan-500/15 px-3 py-1 rounded-xl border border-cyan-200 dark:border-cyan-500/30">
                 &lt;{localMaxCalories} kcal
               </span>
             </div>
@@ -273,8 +301,8 @@ export default function RefineSearchPage({
                   onClick={() => setLocalMaxCalories(val)}
                   className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
                     localMaxCalories === val
-                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-black shadow-sm'
-                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                      ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 border-cyan-600 dark:border-cyan-400 font-black shadow-sm'
+                      : 'bg-white dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   {val}
@@ -294,7 +322,7 @@ export default function RefineSearchPage({
               onClick={() => setIsVeg(!isVeg)}
               className={`p-3 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-2 ${
                 isVeg
-                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/50 shadow-sm'
                   : 'bg-white dark:bg-[#1C2128] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -306,7 +334,7 @@ export default function RefineSearchPage({
               onClick={() => setIsHighProtein(!isHighProtein)}
               className={`p-3 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-2 ${
                 isHighProtein
-                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 shadow-md'
+                  ? 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-500/50 shadow-sm'
                   : 'bg-white dark:bg-[#1C2128] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -318,7 +346,7 @@ export default function RefineSearchPage({
               onClick={() => setIsKeto(!isKeto)}
               className={`p-3 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-2 ${
                 isKeto
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 shadow-md'
+                  ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/50 shadow-sm'
                   : 'bg-white dark:bg-[#1C2128] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -330,7 +358,7 @@ export default function RefineSearchPage({
               onClick={() => setIsGlutenFree(!isGlutenFree)}
               className={`p-3 rounded-2xl text-xs font-bold transition-all border flex items-center justify-center gap-2 ${
                 isGlutenFree
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-md'
+                  ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/50 shadow-sm'
                   : 'bg-white dark:bg-[#1C2128] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
@@ -358,11 +386,11 @@ export default function RefineSearchPage({
                 }}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
                   localCuisines.includes(cuisine)
-                    ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 shadow-md'
+                    ? 'bg-[#E23744]/10 dark:bg-rose-500/20 text-[#E23744] dark:text-rose-300 border-[#E23744]/30 dark:border-rose-500/50 shadow-sm'
                     : 'bg-white dark:bg-[#1C2128] text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/20 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <Utensils className={`w-3.5 h-3.5 ${localCuisines.includes(cuisine) ? 'text-purple-400' : 'text-gray-500'}`} />
+                <Utensils className={`w-3.5 h-3.5 ${localCuisines.includes(cuisine) ? 'text-[#E23744] dark:text-rose-400' : 'text-gray-500 dark:text-gray-400'}`} />
                 <span>{cuisine}</span>
               </button>
             ))}
@@ -376,7 +404,7 @@ export default function RefineSearchPage({
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-[#E23744]" />
             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-              Top 10 AI Recommendations
+              {isDefaultFilters ? "All Available Dishes" : "Top 10 AI Recommendations"}
             </h2>
           </div>
           <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
@@ -385,8 +413,8 @@ export default function RefineSearchPage({
         </div>
 
         {/* Live Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.slice(0, 10).map((item) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {items.slice(0, displayLimit).map((item) => (
             <div
               key={item.id}
               onClick={() => onOpenDishDetail(item)}

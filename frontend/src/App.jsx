@@ -28,6 +28,9 @@ export default function App() {
     is_high_protein: false,
     is_keto: false,
     is_gluten_free: false,
+    cuisines: [],
+    min_rating: 3.5,
+    max_calories: 1000,
   });
 
   const [items, setItems] = useState([]);
@@ -100,7 +103,13 @@ export default function App() {
           is_high_protein: filters.is_high_protein.toString(),
           is_keto: filters.is_keto.toString(),
           is_gluten_free: filters.is_gluten_free.toString(),
+          min_rating: filters.min_rating.toString(),
+          max_calories: filters.max_calories.toString(),
         });
+
+        if (filters.cuisines && filters.cuisines.length > 0) {
+          queryParams.append('cuisines', filters.cuisines.join(','));
+        }
 
         const res = await fetch(`http://127.0.0.1:8000/recommend/explore?${queryParams.toString()}`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -225,6 +234,10 @@ export default function App() {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
+    if (mode === 'hybrid') {
+      setMode('exploration');
+      setActivePersonaTitle('');
+    }
   };
 
   const totalCartCount = cartItems.reduce((acc, ci) => acc + ci.quantity, 0);
@@ -269,6 +282,7 @@ export default function App() {
             loading={loading}
             onAddToCart={handleAddToCart}
             onExploreCategory={handleSelectCategory}
+            onOpenDishDetail={setSelectedDishDetail}
           />
         )}
 

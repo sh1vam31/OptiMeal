@@ -87,7 +87,10 @@ async def candidate_generation(
     is_high_protein: bool = False,
     is_keto: bool = False,
     is_gluten_free: bool = False,
-    category: str = None
+    category: str = None,
+    cuisines: list[str] = None,
+    min_rating: float = 3.5,
+    max_calories: int = 1000
 ) -> list[FoodItem]:
     stmt = select(FoodItem)
     conditions = []
@@ -106,6 +109,11 @@ async def candidate_generation(
         conditions.append(FoodItem.is_gluten_free == True)
     if category:
         conditions.append(FoodItem.category == category)
+    if cuisines:
+        conditions.append(FoodItem.category.in_(cuisines))
+    
+    conditions.append(FoodItem.rating >= min_rating)
+    conditions.append(FoodItem.calories <= max_calories)
 
     if conditions:
         stmt = stmt.where(and_(*conditions))
@@ -291,7 +299,10 @@ async def get_exploration_recommendations(
     is_veg: bool = False,
     is_high_protein: bool = False,
     is_keto: bool = False,
-    is_gluten_free: bool = False
+    is_gluten_free: bool = False,
+    cuisines: list[str] = None,
+    min_rating: float = 3.5,
+    max_calories: int = 1000
 ) -> dict:
     candidates = await candidate_generation(
         db=db,
@@ -300,7 +311,10 @@ async def get_exploration_recommendations(
         is_veg=is_veg,
         is_high_protein=is_high_protein,
         is_keto=is_keto,
-        is_gluten_free=is_gluten_free
+        is_gluten_free=is_gluten_free,
+        cuisines=cuisines,
+        min_rating=min_rating,
+        max_calories=max_calories
     )
 
     if not candidates:

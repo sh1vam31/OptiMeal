@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SlidersHorizontal, Leaf, Dumbbell, Flame, ShieldCheck, Sparkles, Clock, Wallet, RotateCcw, ArrowRight, ShoppingBag } from 'lucide-react';
+import { SlidersHorizontal, Leaf, Dumbbell, Flame, ShieldCheck, Sparkles, Clock, Wallet, RotateCcw, ArrowRight, ShoppingBag, Utensils, Star, Activity } from 'lucide-react';
 
 export default function RefineSearchPage({
   filters,
@@ -7,7 +7,8 @@ export default function RefineSearchPage({
   items,
   loading,
   onAddToCart,
-  onExploreCategory
+  onExploreCategory,
+  onOpenDishDetail
 }) {
   const [localBudget, setLocalBudget] = useState(filters.budget);
   const [localEta, setLocalEta] = useState(filters.eta);
@@ -15,6 +16,9 @@ export default function RefineSearchPage({
   const [isHighProtein, setIsHighProtein] = useState(filters.is_high_protein);
   const [isKeto, setIsKeto] = useState(filters.is_keto);
   const [isGlutenFree, setIsGlutenFree] = useState(filters.is_gluten_free);
+  const [localCuisines, setLocalCuisines] = useState(filters.cuisines || []);
+  const [localMinRating, setLocalMinRating] = useState(filters.min_rating || 3.5);
+  const [localMaxCalories, setLocalMaxCalories] = useState(filters.max_calories || 1000);
 
   const isInitialMount = useRef(true);
 
@@ -26,28 +30,24 @@ export default function RefineSearchPage({
     setIsHighProtein(filters.is_high_protein);
     setIsKeto(filters.is_keto);
     setIsGlutenFree(filters.is_gluten_free);
-  }, [filters.budget, filters.eta, filters.is_veg, filters.is_high_protein, filters.is_keto, filters.is_gluten_free]);
+    setLocalCuisines(filters.cuisines || []);
+    setLocalMinRating(filters.min_rating || 3.5);
+    setLocalMaxCalories(filters.max_calories || 1000);
+  }, [filters.budget, filters.eta, filters.is_veg, filters.is_high_protein, filters.is_keto, filters.is_gluten_free, filters.cuisines, filters.min_rating, filters.max_calories]);
 
-  // 300ms debounced filter update
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      onFilterChange({
-        budget: localBudget,
-        eta: localEta,
-        is_veg: isVeg,
-        is_high_protein: isHighProtein,
-        is_keto: isKeto,
-        is_gluten_free: isGlutenFree,
-      });
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [localBudget, localEta, isVeg, isHighProtein, isKeto, isGlutenFree]);
+  const applyFilters = () => {
+    onFilterChange({
+      budget: localBudget,
+      eta: localEta,
+      is_veg: isVeg,
+      is_high_protein: isHighProtein,
+      is_keto: isKeto,
+      is_gluten_free: isGlutenFree,
+      cuisines: localCuisines,
+      min_rating: localMinRating,
+      max_calories: localMaxCalories,
+    });
+  };
 
   const autoRelax = () => {
     setLocalBudget(750);
@@ -56,6 +56,9 @@ export default function RefineSearchPage({
     setIsHighProtein(false);
     setIsKeto(false);
     setIsGlutenFree(false);
+    setLocalCuisines([]);
+    setLocalMinRating(3.5);
+    setLocalMaxCalories(1000);
   };
 
   return (
@@ -91,13 +94,22 @@ export default function RefineSearchPage({
             </div>
           </div>
 
-          <button
-            onClick={autoRelax}
-            className="px-4 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Auto-Relax Constraints</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={autoRelax}
+              className="px-4 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Auto-Relax Constraints</span>
+            </button>
+            <button
+              onClick={applyFilters}
+              className="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+            >
+              <ArrowRight className="w-4 h-4" />
+              <span>Apply Filters</span>
+            </button>
+          </div>
         </div>
 
         {/* Sliders & Dietary Controls */}
@@ -186,6 +198,92 @@ export default function RefineSearchPage({
           </div>
         </div>
 
+        {/* Rating and Calories Sliders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          {/* 3. Minimum Rating Slider */}
+          <div className="space-y-3 p-4 rounded-2xl bg-[#1C2128] border border-white/5">
+            <div className="flex justify-between items-center text-sm">
+              <label htmlFor="refine-rating-slider" className="text-gray-200 font-extrabold flex items-center gap-2">
+                <Star className="w-4 h-4 text-yellow-400" />
+                <span>Minimum Rating</span>
+              </label>
+              <span className="text-yellow-400 font-mono font-black text-sm bg-yellow-500/15 px-3 py-1 rounded-xl border border-yellow-500/30">
+                {localMinRating}+ Stars
+              </span>
+            </div>
+
+            <input
+              id="refine-rating-slider"
+              type="range"
+              min="3.0"
+              max="5.0"
+              step="0.5"
+              value={localMinRating}
+              onChange={(e) => setLocalMinRating(Number(e.target.value))}
+              className="w-full cursor-pointer accent-yellow-500"
+            />
+
+            {/* Quick Chips */}
+            <div className="grid grid-cols-4 gap-2 pt-1">
+              {[3.5, 4.0, 4.5, 5.0].map((val) => (
+                <button
+                  key={val}
+                  onClick={() => setLocalMinRating(val)}
+                  className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
+                    localMinRating === val
+                      ? 'bg-yellow-500 text-slate-950 border-yellow-400 font-black shadow-sm'
+                      : 'bg-gray-800/60 text-gray-400 border-white/5 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 4. Max Calories Slider */}
+          <div className="space-y-3 p-4 rounded-2xl bg-[#1C2128] border border-white/5">
+            <div className="flex justify-between items-center text-sm">
+              <label htmlFor="refine-calories-slider" className="text-gray-200 font-extrabold flex items-center gap-2">
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span>Max Calories</span>
+              </label>
+              <span className="text-cyan-400 font-mono font-black text-sm bg-cyan-500/15 px-3 py-1 rounded-xl border border-cyan-500/30">
+                &lt;{localMaxCalories} kcal
+              </span>
+            </div>
+
+            <input
+              id="refine-calories-slider"
+              type="range"
+              min="200"
+              max="1200"
+              step="50"
+              value={localMaxCalories}
+              onChange={(e) => setLocalMaxCalories(Number(e.target.value))}
+              className="w-full cursor-pointer accent-cyan-500"
+            />
+
+            {/* Quick Chips */}
+            <div className="grid grid-cols-4 gap-2 pt-1">
+              {[300, 500, 700, 900].map((val) => (
+                <button
+                  key={val}
+                  onClick={() => setLocalMaxCalories(val)}
+                  className={`py-1.5 text-xs font-mono font-bold rounded-xl transition-all border ${
+                    localMaxCalories === val
+                      ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-black shadow-sm'
+                      : 'bg-gray-800/60 text-gray-400 border-white/5 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  {val}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Dietary Preferences Section */}
         <div className="space-y-3 pt-2 border-t border-white/10">
           <span className="text-xs font-extrabold text-gray-400 uppercase tracking-wider block font-mono">
@@ -241,6 +339,35 @@ export default function RefineSearchPage({
             </button>
           </div>
         </div>
+
+        {/* Cuisine Preferences Section */}
+        <div className="space-y-3 pt-2 border-t border-white/10">
+          <span className="text-xs font-extrabold text-gray-400 uppercase tracking-wider block font-mono">
+            Cuisine Preferences
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {["Burgers", "Pizzas", "Rolls & Wraps", "Biryani", "Asian & Bowls", "North Indian", "South Indian", "Desserts", "Beverages"].map(cuisine => (
+              <button
+                key={cuisine}
+                onClick={() => {
+                  if (localCuisines.includes(cuisine)) {
+                    setLocalCuisines(localCuisines.filter(c => c !== cuisine));
+                  } else {
+                    setLocalCuisines([...localCuisines, cuisine]);
+                  }
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
+                  localCuisines.includes(cuisine)
+                    ? 'bg-purple-500/20 text-purple-300 border-purple-500/50 shadow-md'
+                    : 'bg-[#1C2128] text-gray-400 border-white/5 hover:border-white/20 hover:text-white'
+                }`}
+              >
+                <Utensils className={`w-3.5 h-3.5 ${localCuisines.includes(cuisine) ? 'text-purple-400' : 'text-gray-500'}`} />
+                <span>{cuisine}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Live Preview Section */}
@@ -249,7 +376,7 @@ export default function RefineSearchPage({
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-rose-500" />
             <h2 className="text-xl font-black text-white tracking-tight">
-              Matching AI Recommendations ({items.length} dishes)
+              Top 10 AI Recommendations
             </h2>
           </div>
           <span className="text-xs text-gray-400 font-mono">
@@ -259,10 +386,11 @@ export default function RefineSearchPage({
 
         {/* Live Items Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {items.map((item) => (
+          {items.slice(0, 10).map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-2xl bg-[#141820] border border-white/10 hover:border-rose-500/40 transition-all flex flex-col justify-between space-y-3 group"
+              onClick={() => onOpenDishDetail(item)}
+              className="p-4 rounded-2xl bg-[#141820] border border-white/10 hover:border-rose-500/40 transition-all flex flex-col justify-between space-y-3 group cursor-pointer"
             >
               <div className="space-y-3">
                 <div className="h-40 w-full rounded-xl overflow-hidden relative">
@@ -282,7 +410,10 @@ export default function RefineSearchPage({
               <div className="flex items-center justify-between pt-2 border-t border-white/5">
                 <span className="text-base font-black text-white font-mono">₹{item.price}</span>
                 <button
-                  onClick={() => onAddToCart(item)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToCart(item);
+                  }}
                   className="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-all flex items-center gap-1"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />

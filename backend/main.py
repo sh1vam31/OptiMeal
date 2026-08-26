@@ -87,8 +87,12 @@ async def recommend_explore(
     is_high_protein: bool = Query(False),
     is_keto: bool = Query(False),
     is_gluten_free: bool = Query(False),
+    cuisines: str = Query(None),
+    min_rating: float = Query(3.5),
+    max_calories: int = Query(1000),
     db: AsyncSession = Depends(get_db)
 ):
+    cuisine_list = [c.strip() for c in cuisines.split(",")] if cuisines else None
     return await get_exploration_recommendations(
         db=db,
         budget=budget,
@@ -96,7 +100,10 @@ async def recommend_explore(
         is_veg=is_veg,
         is_high_protein=is_high_protein,
         is_keto=is_keto,
-        is_gluten_free=is_gluten_free
+        is_gluten_free=is_gluten_free,
+        cuisines=cuisine_list,
+        min_rating=min_rating,
+        max_calories=max_calories
     )
 
 @app.post("/recommend/exploit")

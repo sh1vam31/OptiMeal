@@ -132,10 +132,14 @@ The success of OptiMeal is evaluated using business logic and offline ranking me
 3. Cold start for completely new users requires them to manually adjust sliders rather than instantly predicting their budget context.
 
 ## 12. Future Improvements
-1. **Two-Tower Neural Ranker**: Replace or ensemble the XGBoost model with a Deep Learning model to capture non-linear feature interactions.
-2. **LLM Diet Planner Integration**: Pass the Top 10 shortlist to an LLM to automatically generate a week-long personalized meal plan based on the user's exact macros.
-3. **Multi-Armed Bandit (MAB)**: Implement UCB (Upper Confidence Bound) to occasionally explore and surface hidden gems that users wouldn't normally search for.
-
+1. **Two-Tower Neural Ranker**: Replace or ensemble the current XGBoost model with a Deep Learning model to capture highly non-linear feature interactions (e.g., how specific dietary preferences interact with time of day). 
+   - *Impact*: Significantly increases ranking accuracy for complex, edge-case user contexts, leading to higher conversion rates compared to linear tree models.
+2. **LLM Diet Planner Integration**: Pass the Top 10 dynamic shortlist to an LLM (like GPT-4) to automatically generate a personalized, week-long meal prep plan based strictly on the user's exact macro-nutrient constraints and available budget.
+   - *Impact*: Transforms the app from a simple delivery aggregator into a premium health & wellness assistant, massively increasing user retention and daily active engagement.
+3. **Multi-Armed Bandit (MAB)**: Implement UCB (Upper Confidence Bound) reinforcement learning algorithms to occasionally explore and surface highly-rated but lesser-known "hidden gem" restaurants that users wouldn't normally search for.
+   - *Impact*: Solves the "rich get richer" problem in recommendations, ensuring new or niche restaurants get fair exposure while continuously improving the overall Novelty score.
+4. **Real-Time NLP Sentiment Analysis**: Instead of relying on static 5-star ratings, deploy an NLP model (like RoBERTa) to instantly analyze the sentiment of a restaurant's most recent reviews. If a highly-rated restaurant suddenly receives complaints about "cold food", the AI dynamically penalizes their quality score.
+   - *Impact*: Protects users from temporary drops in kitchen quality and ensures the ranking engine adapts to real-time performance, heavily boosting trust and reliability.
 ## 13. Bonus Challenge: Product Inspiration (Zomato & Swiggy)
 **Inspiration**: OptiMeal's UI and core food delivery context takes heavy inspiration from **Zomato** and **Swiggy**.
 

@@ -19,7 +19,6 @@ export default function ExplorationFeed({
           <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
             What's on your mind?
           </h2>
-          <span className="text-xs font-mono text-[#E23744] dark:text-emerald-400">Scroll & click to filter</span>
         </div>
 
         <div className="flex items-center gap-5 lg:gap-8 overflow-x-auto pb-3 scrollbar-none justify-start xl:justify-between">

@@ -9,7 +9,7 @@ import HowItWorks from './components/HowItWorks';
 import CartDrawer from './components/CartDrawer';
 import DishDetailModal from './components/DishDetailModal';
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://127.0.0.1:8000');
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false); // Zomato Light Theme by default

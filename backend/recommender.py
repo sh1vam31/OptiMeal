@@ -118,7 +118,7 @@ async def candidate_generation(
     if conditions:
         stmt = stmt.where(and_(*conditions))
 
-    stmt = stmt.order_by(FoodItem.popularity_score.desc()).limit(300)
+    stmt = stmt.order_by(FoodItem.popularity_score.desc()).limit(1000)
     result = await db.execute(stmt)
     return result.scalars().all()
 
@@ -334,32 +334,37 @@ async def get_exploration_recommendations(
 
     category_counts = {}
     category_cards = []
-    seen_names = set()
+    seen_names = {}  # Tracks how many times a name has been seen
 
     for item in ranked_candidates:
         name_key = item["name"].lower()
-        if name_key in seen_names:
+        name_count = seen_names.get(name_key, 0)
+        
+        # Allow up to 2 of the same dish name (from different restaurants)
+        if name_count >= 2:
             continue
             
         cat = item["category"]
-        count = category_counts.get(cat, 0)
+        cat_count = category_counts.get(cat, 0)
         # Allow up to 12 per category to fill the larger grid
-        if count < 12:
-            category_counts[cat] = count + 1
-            seen_names.add(name_key)
+        if cat_count < 12:
+            category_counts[cat] = cat_count + 1
+            seen_names[name_key] = name_count + 1
             category_cards.append(item)
-            if len(category_cards) == 120:
+            if len(category_cards) == 140:
                 break
 
-    if len(category_cards) < 120:
+    if len(category_cards) < 140:
         existing_ids = {x["id"] for x in category_cards}
         for item in ranked_candidates:
             name_key = item["name"].lower()
-            if item["id"] not in existing_ids and name_key not in seen_names:
-                seen_names.add(name_key)
+            name_count = seen_names.get(name_key, 0)
+            
+            if item["id"] not in existing_ids and name_count < 2:
+                seen_names[name_key] = name_count + 1
                 category_cards.append(item)
                 existing_ids.add(item["id"])
-                if len(category_cards) == 120:
+                if len(category_cards) == 140:
                     break
 
     diversity_score = calculate_diversity_score(candidates)

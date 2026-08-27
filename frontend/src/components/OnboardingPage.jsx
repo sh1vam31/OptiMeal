@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Utensils, Plus, Check, ArrowRight, Lock, RotateCcw } from 'lucide-react';
+import { Utensils, Plus, Check, ArrowRight, Lock, RotateCcw, Search } from 'lucide-react';
 
 const PERSONAS = [
   {
@@ -47,6 +47,7 @@ export default function OnboardingPage({
 }) {
   const [selectedPersona, setSelectedPersona] = useState(null);
   const [selectedSeedIds, setSelectedSeedIds] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filter dishes dynamically if a persona is selected
   const displayDishes = seedItems.filter((item) => {
@@ -64,6 +65,10 @@ export default function OnboardingPage({
     }
     return true;
   });
+
+  const filteredDishes = displayDishes.filter(d => 
+    d.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const togglePersona = (p) => {
     if (selectedPersona?.id === p.id) {
@@ -108,7 +113,7 @@ export default function OnboardingPage({
             Discover the best food & drinks
           </h1>
           <p className="text-base md:text-xl text-gray-200 font-medium max-w-2xl mx-auto drop-shadow-md">
-            Pick at least 5 dishes below to build your personalized menu.
+            Pick at least 5 dishes below to help us recommend your perfect meal.
           </p>
           
         </div>
@@ -171,14 +176,24 @@ export default function OnboardingPage({
 
         {/* 3. Softened Seed Foods Selection Grid */}
         <div className="space-y-6">
-          <div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
               {selectedPersona ? `Dishes for "${selectedPersona.title}"` : "Popular dishes to pick"}
             </h2>
+            <div className="relative w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Search dishes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#141820] border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#E23744] dark:focus:ring-rose-500/50 outline-none text-sm text-gray-900 dark:text-white transition-all shadow-sm"
+              />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {displayDishes.slice(0, 100).map((item) => {
+            {filteredDishes.slice(0, 140).map((item) => {
               const isPicked = selectedSeedIds.includes(item.id);
 
               return (
@@ -235,8 +250,8 @@ export default function OnboardingPage({
       </div>
 
       {/* Sticky Bottom Bar (Zomato style minimal) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#141820]/95 backdrop-blur-md border-t border-gray-100 dark:border-white/5 px-6 py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#141820]/95 backdrop-blur-md border-t border-gray-100 dark:border-white/5 px-4 sm:px-6 py-3 sm:py-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
           <div className="text-sm text-gray-600 dark:text-gray-300">
             {canProceed ? (
               <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-2">
@@ -244,7 +259,7 @@ export default function OnboardingPage({
                 {selectedSeedIds.length} dishes selected. Ready to serve!
               </span>
             ) : (
-              <span className="text-gray-500 font-medium flex items-center gap-2">
+              <span className="text-gray-800 dark:text-gray-200 font-semibold flex items-center gap-2">
                 <Lock className="w-4 h-4 text-[#E23744]" />
                 Select {remainingNeeded} more to continue
               </span>
@@ -257,7 +272,7 @@ export default function OnboardingPage({
             className={`px-8 py-3 rounded-xl font-bold text-base transition-all flex items-center gap-2 ${
               canProceed
                 ? 'bg-[#E23744] hover:bg-[#c9303d] text-white shadow-lg shadow-[#E23744]/30 active:scale-95'
-                : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }`}
           >
             <span>Show Recommendations</span>

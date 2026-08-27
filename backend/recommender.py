@@ -340,8 +340,8 @@ async def get_exploration_recommendations(
         name_key = item["name"].lower()
         name_count = seen_names.get(name_key, 0)
         
-        # Allow up to 2 of the same dish name (from different restaurants)
-        if name_count >= 2:
+        # Only allow 1 of the same dish name to prevent repeating dishes
+        if name_count >= 1:
             continue
             
         cat = item["category"]
@@ -360,7 +360,7 @@ async def get_exploration_recommendations(
             name_key = item["name"].lower()
             name_count = seen_names.get(name_key, 0)
             
-            if item["id"] not in existing_ids and name_count < 2:
+            if item["id"] not in existing_ids and name_count < 1:
                 seen_names[name_key] = name_count + 1
                 category_cards.append(item)
                 existing_ids.add(item["id"])

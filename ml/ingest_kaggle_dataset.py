@@ -361,10 +361,12 @@ def load_kaggle_zomato_items():
         dist_mins = int(random.randint(5, 20))
         eta_mins = prep_time + dist_mins
 
-        pure_veg_str = str(r.get("Pure Veg", "No")).lower()
-        is_veg = (pure_veg_str == "yes") or "veg" in cuisines_lower or "south indian" in cuisines_lower or "salad" in cuisines_lower or "paneer" in dish_name.lower() or (idx % 2 == 0)
-        is_high_protein = "chicken" in dish_name.lower() or "mutton" in dish_name.lower() or "protein" in dish_name.lower() or "paneer" in dish_name.lower() or "egg" in dish_name.lower()
-        is_keto = "salad" in dish_name.lower() or "keto" in dish_name.lower() or (idx % 5 == 0)
+        non_veg_keywords = ["chicken", "mutton", "beef", "salmon", "pork", "fish", "meat", "bacon", "pepperoni", "sausage", "cheeseburger"]
+        d_lower = dish_name.lower()
+        is_veg = not any(kw in d_lower for kw in non_veg_keywords) and not bool(re.search(r'\begg\b', d_lower))
+        
+        is_high_protein = "chicken" in d_lower or "mutton" in d_lower or "protein" in d_lower or "paneer" in d_lower or bool(re.search(r'\begg\b', d_lower))
+        is_keto = "salad" in d_lower or "keto" in d_lower or (idx % 5 == 0)
         is_gluten_free = "south indian" in cuisines_lower or "dosa" in dish_name.lower() or "salad" in dish_name.lower() or (idx % 4 == 0)
 
         # Get nutritionally accurate macros

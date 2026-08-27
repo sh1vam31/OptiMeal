@@ -405,7 +405,11 @@ export default function RefineSearchPage({
           <div className="flex items-center space-x-2">
             <Sparkles className="w-5 h-5 text-[#E23744]" />
             <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-              {isDefaultFilters ? "All Available Dishes" : "Top 10 AI Recommendations"}
+              {isDefaultFilters 
+                ? "All Available Dishes" 
+                : items.length === 0 
+                  ? "No AI Recommendations" 
+                  : `Top ${Math.min(items.length, displayLimit)} AI Recommendation${Math.min(items.length, displayLimit) === 1 ? '' : 's'}`}
             </h2>
           </div>
           <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">

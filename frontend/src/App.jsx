@@ -106,20 +106,33 @@ export default function App() {
     setError(null);
 
     try {
+      // Discover and Landing pages should operate independently of the advanced filters
+      const activeFilters = (activeTab === 'refine_search') ? filters : {
+        budget: 500,
+        eta: 30,
+        is_veg: false,
+        is_high_protein: false,
+        is_keto: false,
+        is_gluten_free: false,
+        cuisines: [],
+        min_rating: 3.5,
+        max_calories: 1000,
+      };
+
       if (mode === 'exploration') {
         const queryParams = new URLSearchParams({
-          budget: filters.budget.toString(),
-          eta: filters.eta.toString(),
-          is_veg: filters.is_veg.toString(),
-          is_high_protein: filters.is_high_protein.toString(),
-          is_keto: filters.is_keto.toString(),
-          is_gluten_free: filters.is_gluten_free.toString(),
-          min_rating: filters.min_rating.toString(),
-          max_calories: filters.max_calories.toString(),
+          budget: activeFilters.budget.toString(),
+          eta: activeFilters.eta.toString(),
+          is_veg: activeFilters.is_veg.toString(),
+          is_high_protein: activeFilters.is_high_protein.toString(),
+          is_keto: activeFilters.is_keto.toString(),
+          is_gluten_free: activeFilters.is_gluten_free.toString(),
+          min_rating: activeFilters.min_rating.toString(),
+          max_calories: activeFilters.max_calories.toString(),
         });
 
-        if (filters.cuisines && filters.cuisines.length > 0) {
-          queryParams.append('cuisines', filters.cuisines.join(','));
+        if (activeFilters.cuisines && activeFilters.cuisines.length > 0) {
+          queryParams.append('cuisines', activeFilters.cuisines.join(','));
         }
 
         const res = await fetch(`${API_BASE_URL}/recommend/explore?${queryParams.toString()}`);
@@ -132,12 +145,12 @@ export default function App() {
       } else if (mode === 'exploitation' && selectedCategory) {
         const bodyData = {
           category: selectedCategory,
-          budget: filters.budget,
-          eta: filters.eta,
-          is_veg: filters.is_veg,
-          is_high_protein: filters.is_high_protein,
-          is_keto: filters.is_keto,
-          is_gluten_free: filters.is_gluten_free,
+          budget: activeFilters.budget,
+          eta: activeFilters.eta,
+          is_veg: activeFilters.is_veg,
+          is_high_protein: activeFilters.is_high_protein,
+          is_keto: activeFilters.is_keto,
+          is_gluten_free: activeFilters.is_gluten_free,
         };
 
         const res = await fetch(`${API_BASE_URL}/recommend/exploit`, {
@@ -160,12 +173,12 @@ export default function App() {
     }
   };
 
-  // Fetch recommendations on initial mount and whenever filters/mode change
+  // Fetch recommendations on initial mount and whenever filters/mode/tab change
   useEffect(() => {
     if (mode !== 'hybrid') {
       fetchRecommendations();
     }
-  }, [filters, mode, selectedCategory]);
+  }, [filters, mode, selectedCategory, activeTab]);
 
   // Handle Onboarding Hybrid Seed Recommendations (Step 1 -> Step 2 transition)
   const handleOnboardingGenerate = async ({ persona, selectedSeedIds }) => {

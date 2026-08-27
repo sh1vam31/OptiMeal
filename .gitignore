@@ -23,9 +23,13 @@ var/
 
 # Databases
 *.db
+!intenteats.db
+!intenteats.db
 *.sqlite3
-*.db-shm
-*.db-wal
+*.db
+!intenteats.db-shm
+*.db
+!intenteats.db-wal
 
 # Frontend Node.js
 frontend/node_modules/

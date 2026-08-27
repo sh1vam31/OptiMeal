@@ -73,7 +73,7 @@ export default function CartDrawer({
                   </div>
                   <h3 className="text-base font-bold text-gray-800 dark:text-gray-300">Your Basket is Empty</h3>
                   <p className="text-xs max-w-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                    Browse food options and click "+ Cart" or "ADD" to populate your meal basket.
+                    Discover food options and click "+ Cart" or "ADD" to populate your meal basket.
                   </p>
                 </div>
               ) : (

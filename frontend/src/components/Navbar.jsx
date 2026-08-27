@@ -9,7 +9,7 @@ export default function Navbar({ activeTab, setActiveTab, cartCount, onOpenCart,
         {/* Brand Logo & Nav Links */}
         <div className="flex items-center space-x-8">
           <div 
-            onClick={() => setActiveTab('browse')}
+            onClick={() => setActiveTab('landing')}
             className="flex items-center space-x-2.5 cursor-pointer group"
           >
             <div className="w-9 h-9 rounded-xl bg-[#E23744] p-2 shadow-lg shadow-[#E23744]/20 flex items-center justify-center text-white font-black group-hover:scale-105 transition-transform">
@@ -25,6 +25,18 @@ export default function Navbar({ activeTab, setActiveTab, cartCount, onOpenCart,
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center space-x-2 font-bold text-xs">
             <button
+              onClick={() => setActiveTab('landing')}
+              className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
+                activeTab === 'landing'
+                  ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white font-extrabold shadow-sm border border-gray-200 dark:border-white/15'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+              }`}
+            >
+              <Utensils className="w-4 h-4 text-[#E23744]" />
+              <span>Home</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('browse')}
               className={`px-4 py-2 rounded-xl transition-all flex items-center gap-1.5 ${
                 activeTab === 'browse'
@@ -33,7 +45,7 @@ export default function Navbar({ activeTab, setActiveTab, cartCount, onOpenCart,
               }`}
             >
               <Compass className="w-4 h-4 text-[#E23744]" />
-              <span>Browse</span>
+              <span>Discover</span>
             </button>
 
             <button
@@ -57,7 +69,7 @@ export default function Navbar({ activeTab, setActiveTab, cartCount, onOpenCart,
               }`}
             >
               <BookOpen className="w-4 h-4 text-amber-500 dark:text-amber-400" />
-              <span>How It Works</span>
+              <span>About</span>
             </button>
           </nav>
         </div>

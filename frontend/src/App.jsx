@@ -9,11 +9,11 @@ import HowItWorks from './components/HowItWorks';
 import CartDrawer from './components/CartDrawer';
 import DishDetailModal from './components/DishDetailModal';
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false); // Zomato Light Theme by default
-  const [isOnboarding, setIsOnboarding] = useState(true); // Step 1: Onboarding Taste Picker
-  const [activeTab, setActiveTab] = useState('browse'); // 'browse', 'refine_search', 'how_it_works'
+  const [activeTab, setActiveTab] = useState('landing'); // 'landing', 'browse', 'refine_search', 'how_it_works'
   const [mode, setMode] = useState('exploration'); // 'exploration', 'exploitation', 'hybrid'
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [activePersonaTitle, setActivePersonaTitle] = useState('');
@@ -38,6 +38,7 @@ export default function App() {
   const [trendingBanner, setTrendingBanner] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [apiStatus, setApiStatus] = useState("success");
 
   // Cart State
   const [cartItems, setCartItems] = useState([]);
@@ -121,12 +122,13 @@ export default function App() {
           queryParams.append('cuisines', filters.cuisines.join(','));
         }
 
-        const res = await fetch(`http://127.0.0.1:8000/recommend/explore?${queryParams.toString()}`);
+        const res = await fetch(`${API_BASE_URL}/recommend/explore?${queryParams.toString()}`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
 
         setItems(data.items || []);
         setTrendingBanner(data.time_of_day_banner || '');
+        setApiStatus(data.status || 'success');
       } else if (mode === 'exploitation' && selectedCategory) {
         const bodyData = {
           category: selectedCategory,
@@ -138,7 +140,7 @@ export default function App() {
           is_gluten_free: filters.is_gluten_free,
         };
 
-        const res = await fetch('http://127.0.0.1:8000/recommend/exploit', {
+        const res = await fetch(`${API_BASE_URL}/recommend/exploit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyData),
@@ -148,6 +150,7 @@ export default function App() {
         const data = await res.json();
 
         setItems(data.items || []);
+        setApiStatus(data.status || 'success');
       }
     } catch (err) {
       console.error('Failed to fetch recommendations:', err);
@@ -181,7 +184,7 @@ export default function App() {
         is_gluten_free: filters.is_gluten_free,
       };
 
-      const res = await fetch('http://127.0.0.1:8000/recommend/hybrid', {
+      const res = await fetch(`${API_BASE_URL}/recommend/hybrid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyData),
@@ -199,8 +202,10 @@ export default function App() {
       setSavedHybridTitle(title);
       setItems(returnedItems);
       setActivePersonaTitle(title);
+      setApiStatus(data.status || 'success');
+
       setMode('hybrid');
-      setIsOnboarding(false);
+      setActiveTab('browse');
     } catch (err) {
       console.error('Failed to generate hybrid recommendations:', err);
       setError('Unable to analyze recommendations from selected seed dishes.');
@@ -214,7 +219,6 @@ export default function App() {
     setActivePersonaTitle(categoryName);
     setMode('exploitation');
     setActiveTab('browse');
-    setIsOnboarding(false);
   };
 
   // Handle returning from category drilldown to main browse feed
@@ -238,7 +242,7 @@ export default function App() {
     setHybridItems([]);
     setSavedHybridTitle('');
     setMode('exploration');
-    setIsOnboarding(true);
+    setActiveTab('landing');
     fetchRecommendations();
   };
 
@@ -252,21 +256,7 @@ export default function App() {
 
   const totalCartCount = cartItems.reduce((acc, ci) => acc + ci.quantity, 0);
 
-  // Step 1: Onboarding Taste Picker View (No top Navbar on landing page)
-  if (isOnboarding) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-[#0D0F12] text-gray-900 dark:text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white transition-colors duration-200">
-        <OnboardingPage
-          seedItems={items}
-          onGenerateRecommendations={handleOnboardingGenerate}
-          isDarkMode={isDarkMode}
-          setIsDarkMode={setIsDarkMode}
-        />
-      </div>
-    );
-  }
-
-  // Step 2: Recommendations Results Page
+  // Main Application Layout
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0D0F12] text-gray-900 dark:text-gray-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white transition-colors duration-200">
       {/* Top Navbar */}
@@ -284,11 +274,24 @@ export default function App() {
         onOpenCart={() => setIsCartOpen(true)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+      <main className="flex-1 w-full mx-auto pb-6">
         
-        {/* Tab 1: Dedicated Refine Search Page */}
-        {activeTab === 'refine_search' && (
+        {/* Tab 0: Landing Page (Onboarding) */}
+        {activeTab === 'landing' && (
+          <OnboardingPage
+            seedItems={items}
+            onGenerateRecommendations={handleOnboardingGenerate}
+            isDarkMode={isDarkMode}
+            setIsDarkMode={setIsDarkMode}
+          />
+        )}
+
+        {/* The other tabs should have max-w-7xl and padding */}
+        {activeTab !== 'landing' && (
+          <div className="max-w-7xl w-full mx-auto px-4 pt-6">
+            
+            {/* Tab 1: Dedicated Refine Search Page */}
+            {activeTab === 'refine_search' && (
           <RefineSearchPage
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -303,12 +306,12 @@ export default function App() {
         {/* Tab 2: How It Works View */}
         {activeTab === 'how_it_works' && <HowItWorks />}
 
-        {/* Tab 3: Browse View */}
+        {/* Tab 3: Discover View */}
         {activeTab === 'browse' && (
           <div className="space-y-8">
             
             {/* Top Hero Spotlight (#1 Best Food Picked + Description + Edit My Taste button) */}
-            {items.length > 0 && !loading && (
+            {items.length > 0 && !loading && mode === 'hybrid' && (
               <HeroSpotlight
                 item={items[0]}
                 onAddToCart={handleAddToCart}
@@ -335,16 +338,18 @@ export default function App() {
               ) : mode === 'exploitation' ? (
                 <ExploitationFeed
                   category={selectedCategory}
-                  items={items.slice(1)}
+                  items={mode === 'hybrid' ? items.slice(1) : items}
                   loading={loading}
+                  apiStatus={apiStatus}
                   onBack={handleBackToExploration}
                   onAddToCart={handleAddToCart}
                 />
               ) : (
                 <ExplorationFeed
                   trendingBanner={trendingBanner}
-                  items={items.slice(1)}
+                  items={mode === 'hybrid' ? items.slice(1) : items}
                   loading={loading}
+                  apiStatus={apiStatus}
                   onSelectCategory={handleSelectCategory}
                   onAddToCart={handleAddToCart}
                   onOpenDishDetail={(dish) => setSelectedDishDetail(dish)}
@@ -353,7 +358,9 @@ export default function App() {
             </div>
           </div>
         )}
-      </main>
+      </div>
+    )}
+  </main>
 
       {/* Recommendation Detail Modal */}
       <DishDetailModal

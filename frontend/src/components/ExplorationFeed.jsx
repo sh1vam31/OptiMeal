@@ -5,6 +5,7 @@ export default function ExplorationFeed({
   trendingBanner,
   items,
   loading,
+  apiStatus,
   onSelectCategory,
   onAddToCart,
   onOpenDishDetail
@@ -71,6 +72,16 @@ export default function ExplorationFeed({
               </div>
             ))}
           </div>
+        ) : (apiStatus === 'no_match' || apiStatus === 'fallback') ? (
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white dark:bg-[#141820] rounded-2xl border border-gray-200 dark:border-white/10">
+            <div className="w-16 h-16 bg-rose-100 dark:bg-rose-500/20 text-rose-500 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🍽️</span>
+            </div>
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">No dishes found</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
+              We couldn't find any dishes matching your strict filters. Please try increasing your budget, extending the max delivery time, or relaxing your dietary preferences.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {items.map((item) => (
@@ -91,15 +102,11 @@ export default function ExplorationFeed({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
                     {/* Veg / Non-Veg Tag */}
-                    {item.is_veg ? (
-                      <span className="absolute top-3 left-3 bg-white/95 text-emerald-600 text-[10px] font-black px-2.5 py-1 rounded-md border border-emerald-500/20 backdrop-blur-md shadow-sm">
-                        🟢 VEG
-                      </span>
-                    ) : (
-                      <span className="absolute top-3 left-3 bg-white/95 text-rose-600 text-[10px] font-black px-2.5 py-1 rounded-md border border-rose-500/20 backdrop-blur-md shadow-sm">
-                        🔴 NON-VEG
-                      </span>
-                    )}
+                    <div className="absolute top-2 left-2 bg-white/90 p-1 rounded shadow-sm flex items-center justify-center backdrop-blur-md">
+                      <div className={`w-3.5 h-3.5 flex items-center justify-center border ${item.is_veg ? 'border-green-600' : 'border-red-600'} rounded-sm`}>
+                        <div className={`w-2 h-2 ${item.is_veg ? 'bg-green-600 rounded-full' : 'bg-red-600'} ${item.is_veg ? '' : 'clip-polygon-[50%_0,0_100%,100%_100%] rounded-sm'}`} style={!item.is_veg ? { clipPath: 'polygon(50% 10%, 0% 100%, 100% 100%)', borderRadius: '1px' } : {}} />
+                      </div>
+                    </div>
 
                     {/* Swiggy Style Discount / Savings Badge */}
                     <div className="absolute bottom-3 left-3 bg-gradient-to-r from-[#E23744] to-amber-600 text-white font-extrabold text-[11px] px-2.5 py-1 rounded-lg shadow-lg">

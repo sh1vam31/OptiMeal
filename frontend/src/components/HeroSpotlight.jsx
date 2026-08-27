@@ -109,8 +109,11 @@ export default function HeroSpotlight({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
           <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-mono font-bold">
-            <span className="bg-slate-950/90 text-rose-400 px-2.5 py-1 rounded-lg border border-rose-500/40">
-              {item.is_veg ? "🟢 PURE VEG" : "🔴 NON-VEG"}
+            <span className="bg-slate-950/90 text-rose-400 px-2.5 py-1 rounded-lg border border-rose-500/40 flex items-center gap-1.5">
+              <div className={`w-3.5 h-3.5 flex items-center justify-center border ${item.is_veg ? 'border-green-500' : 'border-red-500'} rounded-sm bg-white`}>
+                <div className={`w-2 h-2 ${item.is_veg ? 'bg-green-500' : 'bg-red-500'} rounded-full`} />
+              </div>
+              <span>{item.is_veg ? "PURE VEG" : "NON-VEG"}</span>
             </span>
           </div>
         </div>
@@ -153,7 +156,7 @@ export default function HeroSpotlight({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 text-xs font-mono">
             <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-400">Budget</span>
+                <span className="text-gray-700 dark:text-gray-300 font-bold">Budget</span>
                 <strong className="text-emerald-400">{bd.budget_fit_pct || 38}%</strong>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
@@ -163,7 +166,7 @@ export default function HeroSpotlight({
 
             <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-400">Speed</span>
+                <span className="text-gray-700 dark:text-gray-300 font-bold">Speed</span>
                 <strong className="text-amber-400">{bd.speed_pct || 30}%</strong>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
@@ -173,7 +176,7 @@ export default function HeroSpotlight({
 
             <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-400">Quality</span>
+                <span className="text-gray-700 dark:text-gray-300 font-bold">Quality</span>
                 <strong className="text-rose-400">{bd.rating_pct || 20}%</strong>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
@@ -183,7 +186,7 @@ export default function HeroSpotlight({
 
             <div className="p-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-1">
               <div className="flex justify-between">
-                <span className="text-gray-400">Dietary</span>
+                <span className="text-gray-700 dark:text-gray-300 font-bold">Dietary</span>
                 <strong className="text-blue-400">{bd.diet_match_pct || 12}%</strong>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">

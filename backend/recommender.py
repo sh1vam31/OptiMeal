@@ -122,6 +122,23 @@ async def candidate_generation(
     result = await db.execute(stmt)
     return result.scalars().all()
 
+def get_dynamic_price(item: FoodItem) -> float:
+    cat_l = item.category.lower()
+    if "biryani" in cat_l or "north indian" in cat_l:
+        return float(180 + (item.id * 37) % 270)
+    elif "burger" in cat_l or "wrap" in cat_l:
+        return float(120 + (item.id * 23) % 160)
+    elif "pizza" in cat_l:
+        return float(240 + (item.id * 41) % 320)
+    elif "south indian" in cat_l:
+        return float(90 + (item.id * 17) % 110)
+    elif "healthy" in cat_l:
+        return float(190 + (item.id * 29) % 210)
+    elif "dessert" in cat_l or "beverage" in cat_l:
+        return float(130 + (item.id * 19) % 180)
+    else:
+        return float(150 + (item.id * 31) % 240)
+
 def prepare_features_for_xgboost(
     items: list[FoodItem],
     budget: float,
@@ -133,7 +150,8 @@ def prepare_features_for_xgboost(
 ) -> pd.DataFrame:
     rows = []
     for item in items:
-        price_ratio = float(item.price / max(1.0, budget))
+        item_real_price = get_dynamic_price(item)
+        price_ratio = float(item_real_price / max(1.0, budget))
         eta_margin = float(eta - item.eta_mins)
         rating_norm = float(item.rating / 5.0)
 
@@ -146,7 +164,7 @@ def prepare_features_for_xgboost(
         protein_ratio = float(item.protein_g / max(1.0, item.calories))
 
         rows.append({
-            "price": float(item.price),
+            "price": float(item_real_price),
             "eta_mins": float(item.eta_mins),
             "rating": float(item.rating),
             "popularity_score": float(item.popularity_score),
@@ -196,28 +214,12 @@ def rank_candidates_with_xgboost(
         norm_score = float(1.0 / (1.0 + math.exp(-score))) if not (0.0 <= score <= 1.0) else float(score)
         
         if category_weights and item.category in category_weights:
-            # Massive score multiplier! A category representing 80% of picks gets an 80% boost!
-            norm_score *= (1.0 + category_weights[item.category])
+            # Massive score multiplier using an aggressive multiplier curve
+            weight = category_weights[item.category]
+            norm_score *= (1.0 + (weight * 2.5))
 
         # Varied realistic prices based on category and dish ID
-        item_real_price = float(item.price)
-        # Always apply dynamic pricing to overwrite uniform DB Swiggy prices (like 125)
-        if True:
-            cat_l = item.category.lower()
-            if "biryani" in cat_l or "north indian" in cat_l:
-                item_real_price = float(180 + (item.id * 37) % 270)
-            elif "burger" in cat_l or "wrap" in cat_l:
-                item_real_price = float(120 + (item.id * 23) % 160)
-            elif "pizza" in cat_l:
-                item_real_price = float(240 + (item.id * 41) % 320)
-            elif "south indian" in cat_l:
-                item_real_price = float(90 + (item.id * 17) % 110)
-            elif "healthy" in cat_l:
-                item_real_price = float(190 + (item.id * 29) % 210)
-            elif "dessert" in cat_l or "beverage" in cat_l:
-                item_real_price = float(130 + (item.id * 19) % 180)
-            else:
-                item_real_price = float(150 + (item.id * 31) % 240)
+        item_real_price = get_dynamic_price(item)
 
         price_score = max(0.0, (budget - item_real_price) / max(1.0, budget))
         speed_score = max(0.0, (eta - item.eta_mins) / max(1.0, eta))
@@ -332,13 +334,19 @@ async def get_exploration_recommendations(
 
     category_counts = {}
     category_cards = []
+    seen_names = set()
 
     for item in ranked_candidates:
+        name_key = item["name"].lower()
+        if name_key in seen_names:
+            continue
+            
         cat = item["category"]
         count = category_counts.get(cat, 0)
         # Allow up to 12 per category to fill the larger grid
         if count < 12:
             category_counts[cat] = count + 1
+            seen_names.add(name_key)
             category_cards.append(item)
             if len(category_cards) == 120:
                 break
@@ -346,7 +354,9 @@ async def get_exploration_recommendations(
     if len(category_cards) < 120:
         existing_ids = {x["id"] for x in category_cards}
         for item in ranked_candidates:
-            if item["id"] not in existing_ids:
+            name_key = item["name"].lower()
+            if item["id"] not in existing_ids and name_key not in seen_names:
+                seen_names.add(name_key)
                 category_cards.append(item)
                 existing_ids.add(item["id"])
                 if len(category_cards) == 120:
@@ -399,6 +409,15 @@ async def get_exploitation_recommendations(
             category=category
         )
         ranked = rank_candidates_with_xgboost(candidates, budget, eta)
+        
+        seen_names = set()
+        deduped_ranked = []
+        for item in ranked:
+            if item["name"].lower() not in seen_names:
+                seen_names.add(item["name"].lower())
+                deduped_ranked.append(item)
+        ranked = deduped_ranked
+
         return {
             "status": "partial_match",
             "mode": "exploitation",
@@ -419,6 +438,14 @@ async def get_exploitation_recommendations(
         is_keto=is_keto,
         is_gluten_free=is_gluten_free
     )
+
+    seen_names = set()
+    deduped_ranked = []
+    for item in ranked:
+        if item["name"].lower() not in seen_names:
+            seen_names.add(item["name"].lower())
+            deduped_ranked.append(item)
+    ranked = deduped_ranked
 
     ndcg_score = calculate_ndcg_score(ranked, k=5)
 
@@ -459,26 +486,37 @@ async def get_hybrid_seed_recommendations(
     seed_names = [item.name for item in seed_items]
 
     if seed_categories:
-        stmt = select(FoodItem).where(
-            and_(
-                FoodItem.price <= budget * 1.5,
-                FoodItem.eta_mins <= eta + 20,
-                FoodItem.category.in_(seed_categories)
-            )
-        ).order_by(func.random()).limit(300)
+        candidates = await candidate_generation(
+            db=db,
+            budget=budget * 1.5,
+            eta=eta + 20,
+            is_veg=is_veg,
+            is_high_protein=is_high_protein,
+            is_keto=is_keto,
+            is_gluten_free=is_gluten_free,
+            cuisines=seed_categories
+        )
     else:
-        stmt = select(FoodItem).where(
-            and_(
-                FoodItem.price <= budget * 1.5,
-                FoodItem.eta_mins <= eta + 20
-            )
-        ).order_by(func.random()).limit(300)
-
-    res = await db.execute(stmt)
-    candidates = res.scalars().all()
+        candidates = await candidate_generation(
+            db=db,
+            budget=budget * 1.5,
+            eta=eta + 20,
+            is_veg=is_veg,
+            is_high_protein=is_high_protein,
+            is_keto=is_keto,
+            is_gluten_free=is_gluten_free
+        )
 
     if not candidates:
-        stmt = select(FoodItem).order_by(FoodItem.rating.desc()).limit(30)
+        stmt = select(FoodItem)
+        conds = []
+        if is_veg: conds.append(FoodItem.is_veg == True)
+        if is_high_protein: conds.append(FoodItem.is_high_protein == True)
+        if is_keto: conds.append(FoodItem.is_keto == True)
+        if is_gluten_free: conds.append(FoodItem.is_gluten_free == True)
+        if conds:
+            stmt = stmt.where(and_(*conds))
+        stmt = stmt.order_by(FoodItem.rating.desc()).limit(30)
         res = await db.execute(stmt)
         candidates = res.scalars().all()
 
@@ -494,9 +532,19 @@ async def get_hybrid_seed_recommendations(
     )
 
     seed_set = set(seed_ids)
-    recommendations = [item for item in ranked if item["id"] not in seed_set]
+    seen_names = set()
+    recommendations = []
+    
+    for item in ranked:
+        if item["id"] not in seed_set and item["name"].lower() not in seen_names:
+            seen_names.add(item["name"].lower())
+            recommendations.append(item)
+
     if not recommendations:
-        recommendations = ranked
+        for item in ranked:
+            if item["name"].lower() not in seen_names:
+                seen_names.add(item["name"].lower())
+                recommendations.append(item)
         
     # Limit to top 60 matches so the feed isn't overwhelmingly long
     recommendations = recommendations[:60]
@@ -522,18 +570,31 @@ async def handle_no_match_fallback(
     is_keto: bool = False,
     is_gluten_free: bool = False
 ) -> dict:
-    relaxed_stmt = select(FoodItem).where(
-        and_(
-            FoodItem.price <= budget + 250,
-            FoodItem.eta_mins <= eta + 25
-        )
-    ).limit(6)
+    conds = [
+        FoodItem.price <= budget + 250,
+        FoodItem.eta_mins <= eta + 25
+    ]
+    if is_veg: conds.append(FoodItem.is_veg == True)
+    if is_high_protein: conds.append(FoodItem.is_high_protein == True)
+    if is_keto: conds.append(FoodItem.is_keto == True)
+    if is_gluten_free: conds.append(FoodItem.is_gluten_free == True)
+
+    relaxed_stmt = select(FoodItem).where(and_(*conds)).limit(6)
 
     res = await db.execute(relaxed_stmt)
     fallback_items = res.scalars().all()
 
     if not fallback_items:
-        fallback_stmt = select(FoodItem).order_by(FoodItem.rating.desc()).limit(6)
+        fallback_conds = []
+        if is_veg: fallback_conds.append(FoodItem.is_veg == True)
+        if is_high_protein: fallback_conds.append(FoodItem.is_high_protein == True)
+        if is_keto: fallback_conds.append(FoodItem.is_keto == True)
+        if is_gluten_free: fallback_conds.append(FoodItem.is_gluten_free == True)
+        
+        fallback_stmt = select(FoodItem)
+        if fallback_conds:
+            fallback_stmt = fallback_stmt.where(and_(*fallback_conds))
+        fallback_stmt = fallback_stmt.order_by(FoodItem.rating.desc()).limit(6)
         res = await db.execute(fallback_stmt)
         fallback_items = res.scalars().all()
 

@@ -423,9 +423,11 @@ export default function RefineSearchPage({
               <div className="space-y-3">
                 <div className="h-40 w-full rounded-xl overflow-hidden relative">
                   <img src={item.image_url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                  <span className="absolute top-2 left-2 text-[10px] font-black px-2 py-0.5 rounded bg-white/95 text-rose-600 border border-gray-200 shadow-sm font-mono">
-                    {item.is_veg ? "🟢 VEG" : "🔴 NON-VEG"}
-                  </span>
+                  <div className="absolute top-2 left-2 bg-white/90 p-1 rounded shadow-sm flex items-center justify-center backdrop-blur-md">
+                    <div className={`w-3.5 h-3.5 flex items-center justify-center border ${item.is_veg ? 'border-green-600' : 'border-red-600'} rounded-sm`}>
+                      <div className={`w-2 h-2 ${item.is_veg ? 'bg-green-600 rounded-full' : 'bg-red-600'} ${item.is_veg ? '' : 'clip-polygon-[50%_0,0_100%,100%_100%] rounded-sm'}`} style={!item.is_veg ? { clipPath: 'polygon(50% 10%, 0% 100%, 100% 100%)', borderRadius: '1px' } : {}} />
+                    </div>
+                  </div>
                 </div>
                 <div>
                   <h3 className="font-extrabold text-base text-gray-900 dark:text-white group-hover:text-[#E23744] transition-colors line-clamp-1">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SlidersHorizontal, Leaf, Dumbbell, Flame, ShieldCheck, Sparkles, Clock, Wallet, RotateCcw, ArrowRight, ShoppingBag, Utensils, Star, Activity } from 'lucide-react';
+import { SlidersHorizontal, Leaf, Dumbbell, Flame, ShieldCheck, Sparkles, Clock, Wallet, RotateCcw, ArrowRight, ShoppingBag, Utensils, Star, Activity, AlertCircle } from 'lucide-react';
 
 export default function RefineSearchPage({
   filters,
   onFilterChange,
   items,
   loading,
+  apiStatus,
   onAddToCart,
   onExploreCategory,
   onOpenDishDetail
@@ -411,9 +412,24 @@ export default function RefineSearchPage({
             Filtered under ₹{localBudget} • {localEta}m ETA
           </span>
         </div>
-
-        {/* Live Items Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {apiStatus === 'no_match' ? (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-xl my-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-amber-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  No exact matches found!
+                </h3>
+                <div className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+                  <p>We couldn't find any dishes strictly under ₹{localBudget} and {localEta}m ETA with your current filters. Try tweaking your preferences—like raising the budget, adjusting the rating, or increasing the ETA—to discover more delicious options!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {items.slice(0, displayLimit).map((item) => (
             <div
               key={item.id}
@@ -453,6 +469,7 @@ export default function RefineSearchPage({
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

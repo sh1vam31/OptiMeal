@@ -297,6 +297,7 @@ export default function App() {
             onFilterChange={handleFilterChange}
             items={items}
             loading={loading}
+            apiStatus={apiStatus}
             onAddToCart={handleAddToCart}
             onExploreCategory={handleSelectCategory}
             onOpenDishDetail={setSelectedDishDetail}

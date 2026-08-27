@@ -320,7 +320,7 @@ async def get_exploration_recommendations(
     )
 
     if not candidates:
-        return await handle_no_match_fallback(db, budget, eta, is_veg, is_high_protein, is_keto, is_gluten_free)
+        return await handle_no_match_fallback(db, budget, eta, is_veg, is_high_protein, is_keto, is_gluten_free, min_rating, max_calories)
 
     ranked_candidates = rank_candidates_with_xgboost(
         candidates=candidates,
@@ -573,7 +573,9 @@ async def handle_no_match_fallback(
     is_veg: bool = False,
     is_high_protein: bool = False,
     is_keto: bool = False,
-    is_gluten_free: bool = False
+    is_gluten_free: bool = False,
+    min_rating: float = 3.5,
+    max_calories: int = 1000
 ) -> dict:
     conds = [
         FoodItem.price <= budget + 250,
@@ -583,6 +585,9 @@ async def handle_no_match_fallback(
     if is_high_protein: conds.append(FoodItem.is_high_protein == True)
     if is_keto: conds.append(FoodItem.is_keto == True)
     if is_gluten_free: conds.append(FoodItem.is_gluten_free == True)
+    
+    conds.append(FoodItem.rating >= min_rating)
+    conds.append(FoodItem.calories <= max_calories)
 
     relaxed_stmt = select(FoodItem).where(and_(*conds)).limit(6)
 
@@ -595,6 +600,9 @@ async def handle_no_match_fallback(
         if is_high_protein: fallback_conds.append(FoodItem.is_high_protein == True)
         if is_keto: fallback_conds.append(FoodItem.is_keto == True)
         if is_gluten_free: fallback_conds.append(FoodItem.is_gluten_free == True)
+        
+        fallback_conds.append(FoodItem.rating >= min_rating)
+        fallback_conds.append(FoodItem.calories <= max_calories)
         
         fallback_stmt = select(FoodItem)
         if fallback_conds:

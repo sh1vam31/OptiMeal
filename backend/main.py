@@ -159,3 +159,19 @@ async def benchmark_comparison():
             "IntentEats provides transparent ML Explainability Badges for every item."
         ]
     }
+
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+# Ensure the dist directory exists before trying to serve it, so it doesn't crash if frontend isn't built
+dist_dir = "frontend/dist"
+if os.path.exists(dist_dir):
+    app.mount("/assets", StaticFiles(directory=f"{dist_dir}/assets"), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_react_app(full_path: str):
+        file_path = os.path.join(dist_dir, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(dist_dir, "index.html"))

@@ -2,7 +2,7 @@
 
 > A responsive Single Page Application (SPA) designed to solve the **"Paradox of Choice"** in food delivery platforms through strict context constraint filtering and dynamic XGBoost item ranking.
 
-**Live Deployment**: `[Deployment Link Will Go Here]`
+**Live Demo**: https://optimeal-hw7a.onrender.com
 
 ---
 

@@ -1,4 +1,4 @@
-# OptiMeal – Context-Aware Food Recommender System
+# OptiMeal – Context Aware Food Recommender System
 
 > A responsive Single Page Application (SPA) designed to solve the **"Paradox of Choice"** in food delivery platforms through strict context constraint filtering and dynamic XGBoost item ranking.
 

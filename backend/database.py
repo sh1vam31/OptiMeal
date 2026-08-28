@@ -16,10 +16,16 @@ async def init_db():
     Initializes schema and seeds items into database directly from the Kaggle Zomato dataset.
     """
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:
+        from sqlalchemy import select, func
+        result = await session.execute(select(func.count(FoodItem.id)))
+        count = result.scalar()
+        if count > 0:
+            print(f"Database already contains {count} items. Skipping ingestion.")
+            return
+
         print("Ingesting real food dataset from Kaggle Zomato JSONs...")
         kaggle_items = load_kaggle_zomato_items()
 
